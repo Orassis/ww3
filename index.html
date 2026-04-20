@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מלחמת המזרח התיכון</title>
+  <link rel="stylesheet" href="style.css?v=3">
+</head>
+<body>
+  <div id="main-screen">
+    <header>
+      <h1>מלחמת המזרח התיכון</h1>
+      <p class="subtitle">ישראל מול איראן — משחק אסטרטגיה</p>
+    </header>
+
+    <div id="map-container">
+      <svg id="middle-east-map" viewBox="0 0 900 580" xmlns="http://www.w3.org/2000/svg">
+        <!-- Ocean background -->
+        <rect width="900" height="580" fill="#0d2240"/>
+
+        <!-- Grid lines (military style) -->
+        <g class="grid">
+          <line x1="0" y1="116" x2="900" y2="116"/>
+          <line x1="0" y1="232" x2="900" y2="232"/>
+          <line x1="0" y1="348" x2="900" y2="348"/>
+          <line x1="0" y1="464" x2="900" y2="464"/>
+          <line x1="180" y1="0" x2="180" y2="580"/>
+          <line x1="360" y1="0" x2="360" y2="580"/>
+          <line x1="540" y1="0" x2="540" y2="580"/>
+          <line x1="720" y1="0" x2="720" y2="580"/>
+        </g>
+
+        <!-- Turkey -->
+        <polygon class="country" id="turkey"
+          points="42,50 180,20 380,20 428,54 428,121 42,121"
+          data-name="טורקיה"/>
+
+        <!-- Egypt -->
+        <polygon class="country" id="egypt"
+          points="20,194 278,194 278,363 100,363 20,300"
+          data-name="מצרים"/>
+
+        <!-- Syria -->
+        <polygon class="country" id="syria"
+          points="235,99 373,99 373,180 235,180"
+          data-name="סוריה"/>
+
+        <!-- Lebanon (small) -->
+        <polygon class="country" id="lebanon"
+          points="235,143 265,143 265,170 235,170"
+          data-name="לבנון"/>
+
+        <!-- Jordan -->
+        <polygon class="country" id="jordan"
+          points="254,167 328,167 328,240 238,240 238,200 254,178"
+          data-name="ירדן"/>
+
+        <!-- Israel — highlighted in blue -->
+        <polygon class="country israel" id="israel"
+          points="220,167 254,167 248,200 238,231 220,200"
+          data-name="ישראל"/>
+
+        <!-- Iraq -->
+        <polygon class="country" id="iraq"
+          points="317,99 527,99 527,238 317,238"
+          data-name="עיראק"/>
+
+        <!-- Kuwait (tiny) -->
+        <polygon class="country" id="kuwait"
+          points="482,221 525,221 525,248 482,248"
+          data-name="כווית"/>
+
+        <!-- Saudi Arabia -->
+        <polygon class="country" id="saudi"
+          points="267,221 680,221 680,380 580,454 267,454"
+          data-name="ערב הסעודית"/>
+
+        <!-- Iran — highlighted in red -->
+        <polygon class="country iran" id="iran"
+          points="429,57 843,57 843,250 700,306 429,306"
+          data-name="איראן"/>
+
+        <!-- UAE -->
+        <polygon class="country" id="uae"
+          points="579,295 697,295 697,347 579,347"
+          data-name="איחוד האמירויות"/>
+
+        <!-- Yemen -->
+        <polygon class="country" id="yemen"
+          points="407,408 665,408 665,454 407,454"
+          data-name="תימן"/>
+
+        <!-- Oman -->
+        <polygon class="country" id="oman"
+          points="665,307 773,307 773,420 665,420"
+          data-name="עומאן"/>
+
+        <!-- Cyprus (island) -->
+        <polygon class="country" id="cyprus"
+          points="177,126 226,126 226,147 177,147"
+          data-name="קפריסין"/>
+
+        <!-- Country labels -->
+        <text class="country-label" x="230" y="75">טורקיה</text>
+        <text class="country-label" x="148" y="285">מצרים</text>
+        <text class="country-label" x="300" y="145">סוריה</text>
+        <text class="country-label" x="285" y="205">ירדן</text>
+        <text class="country-label" x="420" y="175">עיראק</text>
+        <text class="country-label" x="455" y="345">ערב הסעודית</text>
+        <text class="country-label" x="200" y="137">לב׳</text>
+        <text class="country-label israel-label" x="234" y="198">ישראל</text>
+        <text class="country-label iran-label" x="615" y="185">איראן</text>
+        <text class="country-label" x="635" y="380">תימן</text>
+        <text class="country-label" x="635" y="330">עומאן</text>
+        <text class="country-label" x="635" y="320" style="font-size:9px">א.א.</text>
+
+        <!-- Radar pulse — Jerusalem -->
+        <circle class="radar-pulse israel-pulse" cx="234" cy="191" r="8"/>
+        <circle class="radar-pulse israel-pulse delay1" cx="234" cy="191" r="8"/>
+
+        <!-- Radar pulse — Tehran -->
+        <circle class="radar-pulse iran-pulse" cx="590" cy="130" r="8"/>
+        <circle class="radar-pulse iran-pulse delay1" cx="590" cy="130" r="8"/>
+
+        <!-- Capital dots -->
+        <circle class="capital israel-capital" cx="234" cy="191" r="4" data-city="ירושלים"/>
+        <circle class="capital iran-capital" cx="590" cy="130" r="4" data-city="טהרן"/>
+
+        <!-- Tooltip bar -->
+        <rect x="0" y="550" width="900" height="30" fill="#070f1a"/>
+        <text id="map-tooltip" x="450" y="570" text-anchor="middle" class="tooltip-text">
+          רחף מעל מדינה לפרטים
+        </text>
+      </svg>
+    </div>
+
+    <div id="info-panel">
+      <div class="faction israel-faction">
+        <div class="flag">🇮🇱</div>
+        <h2>ישראל</h2>
+        <div class="stats">
+          <div class="stat"><span class="label">כוח צבאי</span><div class="bar"><div class="fill" style="width:85%"></div></div></div>
+          <div class="stat"><span class="label">הגנה</span><div class="bar"><div class="fill" style="width:90%"></div></div></div>
+          <div class="stat"><span class="label">טכנולוגיה</span><div class="bar"><div class="fill" style="width:95%"></div></div></div>
+        </div>
+      </div>
+
+      <div class="center-panel">
+        <div class="vs-text">VS</div>
+        <button id="start-btn" class="btn btn-primary">התחל משחק</button>
+      </div>
+
+      <div class="faction iran-faction">
+        <div class="flag">🇮🇷</div>
+        <h2>איראן</h2>
+        <div class="stats">
+          <div class="stat"><span class="label">כוח צבאי</span><div class="bar"><div class="fill" style="width:75%"></div></div></div>
+          <div class="stat"><span class="label">הגנה</span><div class="bar"><div class="fill" style="width:70%"></div></div></div>
+          <div class="stat"><span class="label">טכנולוגיה</span><div class="bar"><div class="fill" style="width:60%"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
