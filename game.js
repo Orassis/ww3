@@ -129,6 +129,7 @@ const state = {
   money:      50000,
   popularity: 65,
   security:   70,
+  nuclear:    95,
 };
 
 function updateResourcesUI() {
