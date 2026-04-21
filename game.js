@@ -287,6 +287,7 @@ const ACTION_CATEGORIES = {
     choices: [
       {
         title: "תקיפה אווירית רחבה",
+        animation: "wideStrike",
         successChance: 70,
         onSuccess: [
           { label: "☢️ גרעין: −25%",     key: "nuclear",    delta: -25,    lowerIsBetter: true },
@@ -303,6 +304,7 @@ const ACTION_CATEGORIES = {
       },
       {
         title: "חיסול ממוקד",
+        animation: "targetedStrike",
         successChance: 90,
         onSuccess: [
           { label: "💰 עלות: $12,000",   key: "money",      delta: -12000 },
@@ -450,6 +452,8 @@ function buildActionPopup(categoryName, cat) {
           state[e.key] + e.delta
         ));
       });
+      if (choice.animation === "wideStrike")     launchAirStrike(5, 10, 15);
+      if (choice.animation === "targetedStrike") launchAirStrike(1, 1, 3);
       showEffectFloats(effects);
       updateResourcesUI();
       popup.classList.remove("visible");
@@ -561,6 +565,214 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 function bezierPoint(t, p0, p1, p2) {
   const u = 1 - t;
   return u * u * p0 + 2 * u * t * p1 + t * t * p2;
+}
+
+function bezierTangentGlobal(t, p0, p1, p2) {
+  return 2*(1-t)*(p1-p0) + 2*t*(p2-p1);
+}
+
+// ── Air strike animation ──
+function createJetGroup() {
+  const g = document.createElementNS(SVG_NS, "g");
+  const wings = document.createElementNS(SVG_NS, "polygon");
+  wings.setAttribute("points", "1,0 -2,-8 -7,-2 -7,2 -2,8");
+  wings.setAttribute("fill", "#8aafc8");
+  const body = document.createElementNS(SVG_NS, "polygon");
+  body.setAttribute("points", "10,0 -5,3.5 -3,0 -5,-3.5");
+  body.setAttribute("fill", "#c8ddf0");
+  const tail = document.createElementNS(SVG_NS, "polygon");
+  tail.setAttribute("points", "-4,0 -8,-5 -6,0 -8,5");
+  tail.setAttribute("fill", "#8aafc8");
+  const exhaust = document.createElementNS(SVG_NS, "circle");
+  exhaust.setAttribute("cx", "-6"); exhaust.setAttribute("cy", "0");
+  exhaust.setAttribute("r", "2.5"); exhaust.setAttribute("fill", "#ff7020");
+  g.appendChild(wings); g.appendChild(body); g.appendChild(tail); g.appendChild(exhaust);
+  return g;
+}
+
+function showMushroomCloud(cx, cy) {
+  const W = 80, H = 110;
+  const canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  canvas.style.cssText = `position:fixed;left:${cx - W/2}px;top:${cy - H + 10}px;pointer-events:none;z-index:450`;
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext("2d");
+  const t0 = performance.now(), DUR = 3500;
+  let done = false;
+
+  function frame(now) {
+    const t = Math.min((now - t0) / DUR, 1);
+    ctx.clearRect(0, 0, W, H);
+    const bx = W / 2, by = H - 8;
+
+    // Ground flash
+    if (t < 0.18) {
+      const ft = t / 0.18, r = ft * 22;
+      const gf = ctx.createRadialGradient(bx, by, 0, bx, by, r);
+      gf.addColorStop(0, `rgba(255,255,180,${0.95*(1-ft)})`);
+      gf.addColorStop(0.5, `rgba(255,140,0,${0.8*(1-ft)})`);
+      gf.addColorStop(1, "rgba(200,60,0,0)");
+      ctx.fillStyle = gf;
+      ctx.beginPath(); ctx.arc(bx, by, r, 0, Math.PI*2); ctx.fill();
+    }
+
+    // Stem
+    const stemT = Math.min(t * 3, 1);
+    const sH = stemT * H * 0.55, sTopY = by - sH, sW = 5 + stemT * 5;
+    const alph = Math.max(0, 0.8 - t * 0.4);
+    const sg = ctx.createLinearGradient(0, sTopY, 0, by);
+    sg.addColorStop(0, `rgba(110,80,55,${alph})`);
+    sg.addColorStop(0.5, `rgba(175,110,55,${alph})`);
+    sg.addColorStop(1, `rgba(220,140,60,${alph * 0.8})`);
+    ctx.fillStyle = sg;
+    ctx.fillRect(bx - sW/2, sTopY, sW, sH);
+
+    // Base fireball
+    const fbT = Math.max(0, 1 - t * 1.4);
+    if (fbT > 0) {
+      const fbr = 8 + stemT * 10;
+      const fg = ctx.createRadialGradient(bx, by-6, 0, bx, by-6, fbr);
+      fg.addColorStop(0, `rgba(255,250,120,${fbT*0.9})`);
+      fg.addColorStop(0.4, `rgba(255,150,0,${fbT*0.8})`);
+      fg.addColorStop(1, "rgba(200,50,0,0)");
+      ctx.fillStyle = fg;
+      ctx.beginPath(); ctx.arc(bx, by-6, fbr, 0, Math.PI*2); ctx.fill();
+    }
+
+    // Mushroom cap
+    const capT = Math.max(0, Math.min((t - 0.08) * 2.2, 1));
+    const capY = sTopY, capW = capT * W * 0.44, capH2 = capW * 0.42;
+    if (capW > 3) {
+      const a2 = Math.max(0, 0.85 - t * 0.4);
+      const cg = ctx.createRadialGradient(bx, capY - capH2*0.4, 2, bx, capY, capW);
+      cg.addColorStop(0, `rgba(240,160,60,${a2})`);
+      cg.addColorStop(0.45, `rgba(160,95,45,${a2*0.9})`);
+      cg.addColorStop(1, `rgba(70,55,50,${a2*0.7})`);
+      ctx.fillStyle = cg;
+      ctx.beginPath();
+      ctx.ellipse(bx, capY, capW, capH2, 0, Math.PI, 0, true);
+      ctx.lineTo(bx + capW * 0.55, capY + capH2 * 0.6);
+      ctx.quadraticCurveTo(bx, capY + capH2, bx - capW * 0.55, capY + capH2 * 0.6);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    if (t < 1) requestAnimationFrame(frame);
+    else { done = true; canvas.remove(); }
+  }
+
+  requestAnimationFrame(frame);
+  setTimeout(() => { if (!done) canvas.remove(); }, DUR + 1000);
+}
+
+function launchAirStrike(numJets, minTargets, maxTargets) {
+  const israelEl = document.getElementById("israel-map");
+  const iranEl   = document.getElementById("iran-map");
+  if (!israelEl || !iranEl) return;
+
+  const iRect = israelEl.getBoundingClientRect();
+  const nRect = iranEl.getBoundingClientRect();
+  const ox = iRect.left + iRect.width / 2, oy = iRect.top + iRect.height / 2;
+  const iran_cx = nRect.left + nRect.width / 2, iran_cy = nRect.top + nRect.height / 2;
+  const ddx = iran_cx - ox, ddy = iran_cy - oy;
+  const mainLen = Math.hypot(ddx, ddy);
+  const perpX = -ddy / mainLen, perpY = ddx / mainLen;
+
+  const totalTargets = minTargets + Math.floor(Math.random() * (maxTargets - minTargets + 1));
+  const allTargets = [];
+  for (let i = 0; i < totalTargets; i++) {
+    const pt = randomPointOnMap("iran-map");
+    if (pt) allTargets.push(pt);
+  }
+  if (allTargets.length === 0) return;
+
+  const jetTargets = Array.from({ length: numJets }, () => []);
+  allTargets.forEach((pt, i) => jetTargets[i % numJets].push(pt));
+
+  const SPREAD = numJets > 1 ? 14 : 0;
+  const svg = document.getElementById("missile-layer");
+  const jets = [];
+  for (let i = 0; i < numJets; i++) { const j = createJetGroup(); svg.appendChild(j); jets.push(j); }
+
+  const P1 = 3000, P2_SEG = 600, P3 = 2800;
+  let cleaned = false;
+  function cleanup() { if (cleaned) return; cleaned = true; jets.forEach(j => j.remove()); }
+
+  function posJet(jet, x, y, dx, dy) {
+    jet.setAttribute("transform", `translate(${x},${y}) rotate(${Math.atan2(dy, dx) * 180 / Math.PI})`);
+  }
+
+  function animSeg(jet, fx, fy, tx, ty, dur, cb) {
+    const s = performance.now();
+    function frame(now) {
+      const t = Math.min((now - s) / dur, 1);
+      posJet(jet, fx + (tx-fx)*t, fy + (ty-fy)*t, tx-fx, ty-fy);
+      if (t < 1) requestAnimationFrame(frame); else cb?.();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // Phase 1: Israel → Iran formation
+  const p1s = performance.now();
+  function phase1(now) {
+    const t = Math.min((now - p1s) / P1, 1);
+    jets.forEach((jet, i) => {
+      const off = (i - (numJets-1)/2) * SPREAD;
+      const sx = ox + perpX*off, sy = oy + perpY*off;
+      const ex = iran_cx + perpX*off, ey = iran_cy + perpY*off;
+      const cpx = (sx+ex)/2, cpy = (sy+ey)/2 - 60;
+      posJet(jet,
+        bezierPoint(t, sx, cpx, ex), bezierPoint(t, sy, cpy, ey),
+        bezierTangentGlobal(t, sx, cpx, ex), bezierTangentGlobal(t, sy, cpy, ey));
+    });
+    if (t < 1) requestAnimationFrame(phase1); else startPhase2();
+  }
+  requestAnimationFrame(phase1);
+
+  // Phase 2: each jet bombs its targets then returns to rally
+  function startPhase2() {
+    const rally = jets.map((_, i) => {
+      const off = (i - (numJets-1)/2) * SPREAD;
+      return { x: iran_cx + perpX*off, y: iran_cy + perpY*off };
+    });
+    let doneCnt = 0;
+
+    jets.forEach((jet, ji) => {
+      const tgts = jetTargets[ji] || [];
+      const r = rally[ji];
+      function doTarget(ti, fx, fy) {
+        if (ti >= tgts.length) {
+          animSeg(jet, fx, fy, r.x, r.y, P2_SEG, () => { if (++doneCnt === numJets) startPhase3(rally); });
+          return;
+        }
+        const tgt = tgts[ti];
+        animSeg(jet, fx, fy, tgt.x, tgt.y, P2_SEG, () => { showMushroomCloud(tgt.x, tgt.y); doTarget(ti+1, tgt.x, tgt.y); });
+      }
+      setTimeout(() => doTarget(0, r.x, r.y), ji * 200);
+    });
+  }
+
+  // Phase 3: return to Israel
+  function startPhase3(rally) {
+    const p3s = performance.now();
+    function frame(now) {
+      const t = Math.min((now - p3s) / P3, 1);
+      jets.forEach((jet, i) => {
+        const r = rally[i];
+        const off = (i - (numJets-1)/2) * SPREAD;
+        const ex = ox + perpX*off, ey = oy + perpY*off;
+        const cpx = (r.x+ex)/2, cpy = (r.y+ey)/2 + 60;
+        posJet(jet,
+          bezierPoint(t, r.x, cpx, ex), bezierPoint(t, r.y, cpy, ey),
+          bezierTangentGlobal(t, r.x, cpx, ex), bezierTangentGlobal(t, r.y, cpy, ey));
+      });
+      if (t < 1) requestAnimationFrame(frame); else cleanup();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  const maxDur = P1 + (maxTargets + 2) * P2_SEG * 2 + numJets * 200 + P3 + 5000;
+  setTimeout(cleanup, maxDur);
 }
 
 function launchMissile() {
