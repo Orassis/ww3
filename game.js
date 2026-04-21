@@ -532,7 +532,7 @@ function launchMissile() {
   document.body.appendChild(btn);
 
   let intercepted = false;
-  const DURATION = 15000;
+  const DURATION = 10000;
   const startTime = performance.now();
 
   function cleanup() {
@@ -543,13 +543,27 @@ function launchMissile() {
   }
 
   function showExplosion(x, y) {
-    const exp = document.createElementNS(SVG_NS, "circle");
-    exp.setAttribute("cx", x);
-    exp.setAttribute("cy", y);
-    exp.setAttribute("r", "12");
-    exp.setAttribute("class", "explosion-ring");
-    layer.appendChild(exp);
-    setTimeout(() => exp.remove(), 550);
+    // Flash core
+    const flash = document.createElementNS(SVG_NS, "circle");
+    flash.setAttribute("cx", x); flash.setAttribute("cy", y);
+    flash.setAttribute("r", "10");
+    flash.setAttribute("class", "explosion-flash");
+    layer.appendChild(flash);
+
+    // 3 expanding rings with delays
+    [0, 120, 260].forEach((delay, i) => {
+      setTimeout(() => {
+        const ring = document.createElementNS(SVG_NS, "circle");
+        ring.setAttribute("cx", x); ring.setAttribute("cy", y);
+        ring.setAttribute("r", "8");
+        ring.setAttribute("class", "explosion-ring");
+        ring.style.animationDuration = `${0.55 + i * 0.1}s`;
+        layer.appendChild(ring);
+        setTimeout(() => ring.remove(), 700);
+      }, delay);
+    });
+
+    setTimeout(() => flash.remove(), 350);
   }
 
   btn.addEventListener("click", () => {

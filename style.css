@@ -785,18 +785,35 @@ h1 {
   50%       { opacity: 0.25; transform: scale(1.5); }
 }
 
+.explosion-flash {
+  fill: #fff8c0;
+  opacity: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: flashFade 0.35s ease-out forwards;
+}
+
+@keyframes flashFade {
+  0%   { transform: scale(0.5); opacity: 1;   }
+  60%  { transform: scale(2.5); opacity: 0.7; }
+  100% { transform: scale(4);   opacity: 0;   }
+}
+
 .explosion-ring {
   fill: none;
-  stroke: #ffaa22;
+  stroke: #ff8800;
   stroke-width: 3;
   transform-box: fill-box;
   transform-origin: center;
-  animation: explode 0.5s ease-out forwards;
+  animation: explode 0.55s ease-out forwards;
 }
 
+.explosion-ring:nth-child(odd) { stroke: #ffcc44; stroke-width: 2; }
+
 @keyframes explode {
-  0%   { transform: scale(0.2); opacity: 1;  }
-  100% { transform: scale(3);   opacity: 0; }
+  0%   { transform: scale(0.3); opacity: 1;   }
+  50%  { opacity: 0.8; }
+  100% { transform: scale(5);   opacity: 0;   }
 }
 
 .intercept-btn {
