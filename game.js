@@ -146,14 +146,28 @@ function updateResourcesUI() {
   document.getElementById("fill-legitimacy").style.width = state.legitimacy + "%";
 }
 
+let playerName = "";
+
 confirmBtn.addEventListener("click", () => {
-  const name   = nameInput.value.trim();
+  playerName = nameInput.value.trim();
   const gender = selectedGender;
 
   overlay.classList.add("hidden");
 
+  // Show briefing screen
+  const greeting = gender === "female" ? `ברוכה הבאה, ${playerName}` : `ברוך הבא, ${playerName}`;
+  document.getElementById("briefing-title").textContent = greeting;
+  document.getElementById("briefing-intro").textContent =
+    `${playerName}, אתה עומד להיבחר לראשות ממשלת ישראל.\nתפקידך הוא לנהל את המדינה בתקופת משבר — ולהבטיח את ביטחון ישראל מול האיום האיראני.`;
+  document.getElementById("briefing-overlay").classList.remove("hidden");
+});
+
+document.getElementById("briefing-start-btn").addEventListener("click", () => {
+  document.getElementById("briefing-overlay").classList.add("hidden");
+
   // Update header
-  const greeting = gender === "female" ? `ברוכה הבאה, ${name}` : `ברוך הבא, ${name}`;
+  const gender = selectedGender;
+  const greeting = gender === "female" ? `ברוכה הבאה, ${playerName}` : `ברוך הבא, ${playerName}`;
   document.querySelector("h1").textContent = greeting;
   document.getElementById("subtitle").textContent = "ראש הממשלה של ישראל";
 
@@ -174,7 +188,7 @@ confirmBtn.addEventListener("click", () => {
   `;
 
   // Show first event after 5 seconds
-  setTimeout(() => showEvent(firstEvent(name)), 5000);
+  setTimeout(() => showEvent(firstEvent(playerName)), 5000);
 });
 
 // ── Events ──

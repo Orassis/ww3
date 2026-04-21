@@ -273,7 +273,49 @@
         <input type="text" id="player-name" placeholder="הכנס שם..." maxlength="30" autocomplete="off"/>
       </div>
 
-      <button id="confirm-btn" disabled>התחל</button>
+      <button id="confirm-btn" disabled>הבא ←</button>
+    </div>
+  </div>
+
+  <!-- Briefing Modal -->
+  <div id="briefing-overlay" class="hidden">
+    <div id="briefing-modal">
+      <div id="briefing-header">
+        <span class="briefing-tag">📋 תדריך</span>
+        <h2 id="briefing-title">ברוך הבא לתפקיד</h2>
+      </div>
+      <div id="briefing-body">
+        <p id="briefing-intro"></p>
+        <div class="briefing-section">
+          <h3>💰 משאבים</h3>
+          <p>אתה מתחיל עם <strong>$50,000</strong>. תוכל למצוא דרכים להשיג כסף נוסף במהלך המשחק.</p>
+        </div>
+        <div class="briefing-section">
+          <h3>📊 מדדים</h3>
+          <ul class="briefing-list">
+            <li><span class="meter-tag blue">פופולאריות</span> — תמיכת הציבור בך. אל תאבד אותה.</li>
+            <li><span class="meter-tag green">ביטחון</span> — מצב הביטחון הלאומי.</li>
+            <li><span class="meter-tag purple">לגיטימציה בינ"ל</span> — מעמד ישראל בזירה הבינלאומית.</li>
+            <li><span class="meter-tag red">☢️ גרעין איראני</span> — המדד הקריטי של האויב.</li>
+          </ul>
+        </div>
+        <div class="briefing-section">
+          <h3>🎯 מטרה</h3>
+          <p>הקדנציה שלך היא <strong>30 תורות</strong>.<br/>
+          שמור על הגרעין האיראני <strong>מתחת ל-30%</strong> עד סוף הקדנציה.</p>
+        </div>
+        <div class="briefing-section briefing-lose">
+          <h3>💀 תפסיד אם:</h3>
+          <ul class="briefing-list">
+            <li>נגמר לך הכסף</li>
+            <li>אחד המדדים שלך מגיע ל-0%</li>
+            <li>הגרעין האיראני מגיע ל-100%</li>
+          </ul>
+        </div>
+      </div>
+      <div id="briefing-footer">
+        <button id="briefing-start-btn">התחל משחק ⚔️</button>
+      </div>
     </div>
   </div>
 

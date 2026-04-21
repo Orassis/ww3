@@ -425,6 +425,150 @@ h1 {
   min-width: 36px;
 }
 
+/* ── Briefing Modal ── */
+#briefing-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 10, 20, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 150;
+  backdrop-filter: blur(4px);
+  padding: 20px;
+}
+
+#briefing-overlay.hidden { display: none; }
+
+#briefing-modal {
+  background: #0a1828;
+  border: 1px solid #2a4a6a;
+  border-radius: 12px;
+  width: min(580px, 96vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 0 60px rgba(0, 80, 180, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+#briefing-header {
+  background: linear-gradient(135deg, #0a1828, #122038);
+  border-bottom: 1px solid #2a4a6a;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 12px 12px 0 0;
+  flex-shrink: 0;
+}
+
+.briefing-tag {
+  font-size: 0.8rem;
+  background: #2a5a8a;
+  color: #aad4ff;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+#briefing-header h2 {
+  font-size: 1.1rem;
+  color: #88bbff;
+  letter-spacing: 1px;
+}
+
+#briefing-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  overflow-y: auto;
+}
+
+#briefing-intro {
+  font-size: 0.95rem;
+  color: #c8d8e8;
+  line-height: 1.7;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #1a3050;
+}
+
+.briefing-section h3 {
+  font-size: 0.9rem;
+  color: #d4af37;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.briefing-section p {
+  font-size: 0.88rem;
+  color: #a0b8cc;
+  line-height: 1.7;
+}
+
+.briefing-section p strong { color: #e0e8f0; }
+
+.briefing-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.briefing-list li {
+  font-size: 0.87rem;
+  color: #a0b8cc;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.meter-tag {
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.meter-tag.blue   { background: #1a3a6a; color: #88bbff; }
+.meter-tag.green  { background: #1a4a2a; color: #88ee88; }
+.meter-tag.purple { background: #3a1a5a; color: #cc88ff; }
+.meter-tag.red    { background: #4a1a1a; color: #ff8888; }
+
+.briefing-lose h3 { color: #ff7a7a; }
+
+#briefing-footer {
+  padding: 16px 24px 22px;
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid #1a3050;
+  flex-shrink: 0;
+}
+
+#briefing-start-btn {
+  padding: 12px 48px;
+  background: linear-gradient(135deg, #1a5a28, #28922e);
+  color: #d0ffd4;
+  border: 1px solid #3ab844;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+  font-weight: bold;
+  letter-spacing: 2px;
+  cursor: pointer;
+  box-shadow: 0 0 18px rgba(42, 160, 60, 0.35);
+  transition: all 0.2s;
+}
+
+#briefing-start-btn:hover {
+  background: linear-gradient(135deg, #22742e, #32b03c);
+  box-shadow: 0 0 26px rgba(42, 160, 60, 0.55);
+  transform: translateY(-1px);
+}
+
 /* ── Event Modal ── */
 #event-overlay {
   position: fixed;
