@@ -51,10 +51,12 @@ function drawMap(containerId, features, capital) {
   const path = d3.geoPath().projection(projection);
 
   features.forEach(f => {
+    const noStroke = f.properties && f.properties.noStroke;
     svg.append("path")
       .datum(f)
       .attr("class", "country-shape")
-      .attr("d", path);
+      .attr("d", path)
+      .attr("stroke", noStroke ? "none" : null);
   });
 
   if (capital) {
@@ -72,16 +74,21 @@ function drawMap(containerId, features, capital) {
 async function init() {
   try {
     const world = await d3.json(WORLD_URL);
+
+    // Merge Israel + Palestine into one polygon (removes internal border)
+    const merged = topojson.merge(
+      world,
+      world.objects.countries.geometries.filter(d => [ISRAEL_ID, PALESTINE_ID].includes(+d.id))
+    );
+    const israelMerged = { type: "Feature", geometry: merged };
+
+    // Golan drawn without stroke so it blends in
+    const golanNoStroke = { ...GOLAN_GEOJSON, properties: { noStroke: true } };
+
     const allFeatures = topojson.feature(world, world.objects.countries).features;
-
-    // Israel = Israel proper + West Bank/Gaza + Golan Heights
-    const israelBase  = allFeatures.find(d => +d.id === ISRAEL_ID);
-    const palestine   = allFeatures.find(d => +d.id === PALESTINE_ID);
-    const israelFeatures = [israelBase, palestine, GOLAN_GEOJSON].filter(Boolean);
-
     const iran = allFeatures.find(d => +d.id === IRAN_ID);
 
-    drawMap("israel-map", israelFeatures, CAPITALS.israel);
+    drawMap("israel-map", [israelMerged, golanNoStroke], CAPITALS.israel);
     if (iran) drawMap("iran-map", [iran], CAPITALS.iran);
   } catch (e) {
     console.error("Failed to load map data:", e);
