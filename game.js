@@ -323,6 +323,7 @@ const ACTION_CATEGORIES = {
         title: "טיל יריחו",
         successChance: 100,
         onSuccess: [
+          { label: "💰 עלות: $20,000",   key: "money",      delta: -20000 },
           { label: "☢️ גרעין: −10%",    key: "nuclear",    delta: -10,   lowerIsBetter: true },
           { label: "🌐 לגיטימציה: −10%", key: "legitimacy", delta: -10   },
           { label: "🛡️ ביטחון: +15%",   key: "security",   delta: +15   },
