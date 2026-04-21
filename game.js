@@ -307,6 +307,10 @@ document.getElementById("briefing-start-btn").addEventListener("click", () => {
   // Show first event after 5 seconds
   setTimeout(() => showEvent(firstEvent(playerName)), 5000);
 
+  // Swap landing screen for main game layout
+  document.getElementById("landing-screen").classList.add("hidden");
+  document.getElementById("main-layout").classList.remove("hidden");
+
   // Reveal event log and log game start
   document.getElementById("event-log").classList.remove("hidden");
   addLogDayHeader(1, state.gameDate);

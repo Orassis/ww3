@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>World War 3</title>
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
 </head>
@@ -64,7 +64,16 @@
       </div>
     </div>
 
-    <div id="main-layout">
+    <div id="landing-screen">
+      <p id="landing-tagline">
+        ישראל ניצבת בפני האיום הגרעיני המסוכן ביותר בתולדותיה.<br>
+        כראש הממשלה, תצטרך לקבל החלטות גורליות — תקיפות, דיפלומטיה, ומרוץ נגד השעון.<br>
+        <strong>האם תצליח לעצור את הגרעין האיראני לפני שיהיה מאוחר מדי?</strong>
+      </p>
+      <button id="start-btn">⚔️ התחל משחק</button>
+    </div>
+
+    <div id="main-layout" class="hidden">
     <div id="event-log" class="hidden">
       <div id="log-header">📋 יומן אירועים</div>
       <div id="log-content"></div>
@@ -121,9 +130,7 @@
       </div>
     </div>
 
-    <div id="action-bar">
-      <button id="start-btn">התחל משחק</button>
-    </div>
+    <div id="action-bar"></div>
     </div><!-- /maps-and-actions -->
     </div><!-- /main-layout -->
   </div>
