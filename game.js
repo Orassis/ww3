@@ -543,27 +543,92 @@ function launchMissile() {
   }
 
   function showExplosion(x, y) {
-    // Flash core
-    const flash = document.createElementNS(SVG_NS, "circle");
-    flash.setAttribute("cx", x); flash.setAttribute("cy", y);
-    flash.setAttribute("r", "10");
-    flash.setAttribute("class", "explosion-flash");
-    layer.appendChild(flash);
+    const canvas = document.createElement("canvas");
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:402;";
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext("2d");
 
-    // 3 expanding rings with delays
-    [0, 120, 260].forEach((delay, i) => {
-      setTimeout(() => {
-        const ring = document.createElementNS(SVG_NS, "circle");
-        ring.setAttribute("cx", x); ring.setAttribute("cy", y);
-        ring.setAttribute("r", "8");
-        ring.setAttribute("class", "explosion-ring");
-        ring.style.animationDuration = `${0.55 + i * 0.1}s`;
-        layer.appendChild(ring);
-        setTimeout(() => ring.remove(), 700);
-      }, delay);
-    });
+    const COLORS = ["#ffffff","#fff8a0","#ffdd00","#ffaa00","#ff6600","#ff3300","#cc1100"];
 
-    setTimeout(() => flash.remove(), 350);
+    const particles = [];
+    for (let i = 0; i < 80; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 1.5 + Math.random() * 9;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - Math.random() * 4,
+        size: 1.5 + Math.random() * 4.5,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        life: 1.0,
+        decay: 0.018 + Math.random() * 0.028,
+      });
+    }
+
+    let flashAlpha = 1.0;
+    let shockR = 4;
+
+    function frame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Shockwave ring
+      if (shockR < 80) {
+        ctx.beginPath();
+        ctx.arc(x, y, shockR, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255,200,80,${Math.max(0, 0.7 - shockR / 80)})`;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        shockR += 5;
+      }
+
+      // Flash
+      if (flashAlpha > 0) {
+        const grad = ctx.createRadialGradient(x, y, 0, x, y, 36);
+        grad.addColorStop(0, `rgba(255,255,220,${flashAlpha})`);
+        grad.addColorStop(1, `rgba(255,120,0,0)`);
+        ctx.beginPath();
+        ctx.arc(x, y, 36, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+        flashAlpha -= 0.12;
+      }
+
+      // Particles
+      let alive = flashAlpha > 0 || shockR < 80;
+      particles.forEach(p => {
+        if (p.life <= 0) return;
+        alive = true;
+        p.x  += p.vx;
+        p.y  += p.vy;
+        p.vy += 0.18;   // gravity
+        p.vx *= 0.96;   // drag
+        p.life -= p.decay;
+
+        // streak tail
+        ctx.beginPath();
+        ctx.moveTo(p.x - p.vx * 2.5, p.y - p.vy * 2.5);
+        ctx.lineTo(p.x, p.y);
+        ctx.strokeStyle = p.color;
+        ctx.globalAlpha = p.life * 0.6;
+        ctx.lineWidth = p.size * 0.6;
+        ctx.stroke();
+
+        // dot
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.life;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      });
+
+      if (alive) requestAnimationFrame(frame);
+      else canvas.remove();
+    }
+
+    requestAnimationFrame(frame);
   }
 
   btn.addEventListener("click", () => {
