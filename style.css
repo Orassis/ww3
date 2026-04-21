@@ -747,6 +747,82 @@ h1 {
   transform: translateY(-1px);
 }
 
+/* ── Missile layer ── */
+#missile-layer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 400;
+  overflow: visible;
+}
+
+.missile-path {
+  fill: none;
+  stroke: #222;
+  stroke-width: 2;
+  stroke-dasharray: 7 4;
+  opacity: 0.7;
+}
+
+.missile-dot {
+  fill: #ff4444;
+  filter: drop-shadow(0 0 4px #ff2222);
+}
+
+.impact-ring {
+  fill: rgba(255, 50, 50, 0.18);
+  stroke: #ff3333;
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: impactPulse 0.9s ease-in-out infinite;
+}
+
+@keyframes impactPulse {
+  0%, 100% { opacity: 0.7; transform: scale(1);   }
+  50%       { opacity: 0.25; transform: scale(1.5); }
+}
+
+.explosion-ring {
+  fill: none;
+  stroke: #ffaa22;
+  stroke-width: 3;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: explode 0.5s ease-out forwards;
+}
+
+@keyframes explode {
+  0%   { transform: scale(0.2); opacity: 1;  }
+  100% { transform: scale(3);   opacity: 0; }
+}
+
+.intercept-btn {
+  position: fixed;
+  transform: translate(-50%, -140%);
+  background: linear-gradient(135deg, #1a5a28, #28922e);
+  color: #d0ffd4;
+  border: 1px solid #3ab844;
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-family: inherit;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 401;
+  pointer-events: auto;
+  white-space: nowrap;
+  box-shadow: 0 0 10px rgba(42, 160, 60, 0.5);
+  letter-spacing: 1px;
+  transition: background 0.15s;
+}
+
+.intercept-btn:hover {
+  background: linear-gradient(135deg, #22742e, #32b03c);
+}
+
 /* ── Game Over Modal ── */
 #gameover-overlay {
   position: fixed;

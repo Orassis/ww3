@@ -479,6 +479,131 @@ function showEvent(event) {
   overlay.classList.remove("hidden");
 }
 
+// ── Missile system ──
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+function bezierPoint(t, p0, p1, p2) {
+  const u = 1 - t;
+  return u * u * p0 + 2 * u * t * p1 + t * t * p2;
+}
+
+function launchMissile() {
+  const iranRect  = document.getElementById("iran-map").getBoundingClientRect();
+  const israelRect = document.getElementById("israel-map").getBoundingClientRect();
+
+  // Start: random point inside Iran map
+  const sx = iranRect.left  + iranRect.width  * (0.25 + Math.random() * 0.5);
+  const sy = iranRect.top   + iranRect.height * (0.25 + Math.random() * 0.5);
+
+  // End: random point inside Israel map
+  const ex = israelRect.left + israelRect.width  * (0.2 + Math.random() * 0.6);
+  const ey = israelRect.top  + israelRect.height * (0.2 + Math.random() * 0.6);
+
+  // Arc control point: midpoint lifted above both maps
+  const cpx = (sx + ex) / 2;
+  const cpy = Math.min(sy, ey) - 160;
+
+  const layer = document.getElementById("missile-layer");
+
+  // Path
+  const path = document.createElementNS(SVG_NS, "path");
+  path.setAttribute("d", `M ${sx} ${sy} Q ${cpx} ${cpy} ${ex} ${ey}`);
+  path.setAttribute("class", "missile-path");
+  layer.appendChild(path);
+
+  // Impact ring
+  const ring = document.createElementNS(SVG_NS, "circle");
+  ring.setAttribute("cx", ex);
+  ring.setAttribute("cy", ey);
+  ring.setAttribute("r", "18");
+  ring.setAttribute("class", "impact-ring");
+  layer.appendChild(ring);
+
+  // Missile dot
+  const dot = document.createElementNS(SVG_NS, "circle");
+  dot.setAttribute("r", "7");
+  dot.setAttribute("class", "missile-dot");
+  layer.appendChild(dot);
+
+  // Intercept button
+  const btn = document.createElement("button");
+  btn.className = "intercept-btn";
+  btn.textContent = "✈️ ירוט — $1,000";
+  document.body.appendChild(btn);
+
+  let intercepted = false;
+  const DURATION = 15000;
+  const startTime = performance.now();
+
+  function cleanup() {
+    path.remove();
+    ring.remove();
+    dot.remove();
+    btn.remove();
+  }
+
+  function showExplosion(x, y) {
+    const exp = document.createElementNS(SVG_NS, "circle");
+    exp.setAttribute("cx", x);
+    exp.setAttribute("cy", y);
+    exp.setAttribute("r", "12");
+    exp.setAttribute("class", "explosion-ring");
+    layer.appendChild(exp);
+    setTimeout(() => exp.remove(), 550);
+  }
+
+  btn.addEventListener("click", () => {
+    if (intercepted) return;
+    intercepted = true;
+    const cx = +dot.getAttribute("cx");
+    const cy = +dot.getAttribute("cy");
+    showExplosion(cx, cy);
+    state.money = Math.max(0, state.money - 1000);
+    showFloat("-$1,000", false, "val-money");
+    updateResourcesUI();
+    cleanup();
+    checkGameOver();
+  });
+
+  function animate(now) {
+    if (intercepted) return;
+    const t = Math.min((now - startTime) / DURATION, 1);
+    const x = bezierPoint(t, sx, cpx, ex);
+    const y = bezierPoint(t, sy, cpy, ey);
+
+    dot.setAttribute("cx", x);
+    dot.setAttribute("cy", y);
+    btn.style.left = x + "px";
+    btn.style.top  = y + "px";
+
+    if (t >= 1) {
+      showExplosion(ex, ey);
+      cleanup();
+      const secDmg  = Math.floor(Math.random() * 11);   // 0–10
+      const legGain = Math.floor(Math.random() * 6);    // 0–5
+      state.security   = Math.max(0,   state.security   - secDmg);
+      state.legitimacy = Math.min(100, state.legitimacy + legGain);
+      showEffectFloats([
+        { key: "security",   delta: -secDmg,  lowerIsBetter: false },
+        { key: "legitimacy", delta: +legGain, lowerIsBetter: false },
+      ]);
+      updateResourcesUI();
+      checkGameOver();
+      return;
+    }
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+}
+
+function scheduleRandomAttack() {
+  const delay = 3000 + Math.random() * 7000; // 3–10s
+  setTimeout(() => {
+    const count = Math.floor(Math.random() * 11); // 0–10
+    for (let i = 0; i < count; i++) launchMissile();
+  }, delay);
+}
+
 // ── Game Over ──
 function checkGameOver() {
   let isWin = false;
@@ -564,6 +689,7 @@ nextTurnBtn.addEventListener("click", () => {
   updateTurnUI();
   checkGameOver();
   if (state.turn < 30 && state.nuclear < 100) startNextTurnCooldown();
+  scheduleRandomAttack();
 });
 
 const EFFECT_ANCHOR = {
