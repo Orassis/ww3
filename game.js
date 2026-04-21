@@ -625,6 +625,7 @@ function showMushroomCloud(cx, cy) {
   function frame(now) {
     const t = Math.min((now - t0) / DUR, 1);
     ctx.clearRect(0, 0, W, H);
+    ctx.globalAlpha = t > 0.75 ? Math.max(0, 1 - (t - 0.75) / 0.25) : 1;
     const bx = W / 2, by = H - 6;
 
     // 1. Ground shockwave ring
@@ -685,6 +686,7 @@ function showMushroomCloud(cx, cy) {
       cloudBubble(bx + capR*0.4, capY - capR*0.2,  capR*0.42, "80,62,50", "58,45,40", ca * 0.65);
     }
 
+    ctx.globalAlpha = 1;
     if (t < 1) requestAnimationFrame(frame);
     else { done = true; canvas.remove(); }
   }
@@ -731,11 +733,23 @@ function launchAirStrike(numJets, minTargets, maxTargets) {
   }
 
   function animSeg(jet, fx, fy, tx, ty, dur, cb) {
+    // Curved bezier path: control point banked perpendicular to direction
+    const ddx = tx - fx, ddy = ty - fy;
+    const len = Math.hypot(ddx, ddy) || 1;
+    const bank = len * 0.25;
+    const cpx = (fx + tx) / 2 + (-ddy / len) * bank;
+    const cpy = (fy + ty) / 2 + ( ddx / len) * bank;
     const s = performance.now();
+    function easeInOut(t) { return t < 0.5 ? 2*t*t : -1 + (4-2*t)*t; }
     function frame(now) {
-      const t = Math.min((now - s) / dur, 1);
-      posJet(jet, fx + (tx-fx)*t, fy + (ty-fy)*t, tx-fx, ty-fy);
-      if (t < 1) requestAnimationFrame(frame); else cb?.();
+      const raw = Math.min((now - s) / dur, 1);
+      const t = easeInOut(raw);
+      const x = bezierPoint(t, fx, cpx, tx);
+      const y = bezierPoint(t, fy, cpy, ty);
+      const dx = bezierTangentGlobal(t, fx, cpx, tx);
+      const dy = bezierTangentGlobal(t, fy, cpy, ty);
+      posJet(jet, x, y, dx, dy);
+      if (raw < 1) requestAnimationFrame(frame); else cb?.();
     }
     requestAnimationFrame(frame);
   }
