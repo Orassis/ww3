@@ -290,6 +290,7 @@ function showEvent(event) {
       });
       updateResourcesUI();
       overlay.classList.add("hidden");
+      checkGameOver();
     });
 
     choicesEl.appendChild(btn);
@@ -297,6 +298,52 @@ function showEvent(event) {
 
   overlay.classList.remove("hidden");
 }
+
+// ── Game Over ──
+function checkGameOver() {
+  let isWin = false;
+  let status, reason;
+
+  if (state.money <= 0) {
+    status = "נכשלת";
+    reason = "💸 פשיטת רגל — אזל התקציב הלאומי";
+  } else if (state.popularity <= 0) {
+    status = "נכשלת";
+    reason = "📣 אמון הציבור קרס — הודחת מתפקידך";
+  } else if (state.security <= 0) {
+    status = "נכשלת";
+    reason = "🛡️ הביטחון הלאומי קרס — ישראל נפלה";
+  } else if (state.legitimacy <= 0) {
+    status = "נכשלת";
+    reason = "🌐 ישראל הוקעה לחלוטין מהקהילה הבינלאומית";
+  } else if (state.nuclear >= 100) {
+    status = "נכשלת";
+    reason = "☢️ איראן השיגה פצצה גרעינית — כישלון קטסטרופלי";
+  } else if (state.turn >= 30) {
+    if (state.nuclear < 30) {
+      isWin = true;
+      status = "ניצחת!";
+      reason = "כל הכבוד — עצרת את תוכנית הגרעין האיראנית והבטחת את עתיד ישראל";
+    } else {
+      status = "נכשלת";
+      reason = "☢️ הקדנציה הסתיימה — הגרעין האיראני עדיין מאיים";
+    }
+  }
+
+  if (status) showGameOver(status, reason, isWin);
+}
+
+function showGameOver(status, reason, isWin) {
+  const modal = document.getElementById("gameover-modal");
+  document.getElementById("gameover-status").textContent = status;
+  document.getElementById("gameover-reason").textContent = reason;
+  if (isWin) modal.classList.add("win");
+  else modal.classList.remove("win");
+  document.getElementById("gameover-overlay").classList.remove("hidden");
+  document.getElementById("next-turn-btn").disabled = true;
+}
+
+document.getElementById("restart-btn").addEventListener("click", () => location.reload());
 
 // ── Next Turn ──
 const nextTurnBtn = document.getElementById("next-turn-btn");
@@ -335,7 +382,8 @@ nextTurnBtn.addEventListener("click", () => {
   showMoneyFloat("+$5,000");
 
   updateTurnUI();
-  startNextTurnCooldown();
+  checkGameOver();
+  if (state.turn < 30 && state.nuclear < 100) startNextTurnCooldown();
 });
 
 function showMoneyFloat(text) {
