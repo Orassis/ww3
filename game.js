@@ -1,41 +1,69 @@
-const countries = document.querySelectorAll('.country');
-const tooltip = document.getElementById('map-tooltip');
-const startBtn = document.getElementById('start-btn');
+const WORLD_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
 
-const countryInfo = {
-  israel:  { name: 'ישראל',              align: 'שחקן 1', color: '#6aabff' },
-  iran:    { name: 'איראן',              align: 'שחקן 2', color: '#ff7a7a' },
-  iraq:    { name: 'עיראק',             align: 'ניטרלי',  color: '#7aaa88' },
-  syria:   { name: 'סוריה',             align: 'ניטרלי',  color: '#7aaa88' },
-  lebanon: { name: 'לבנון',             align: 'ניטרלי',  color: '#7aaa88' },
-  jordan:  { name: 'ירדן',              align: 'ניטרלי',  color: '#7aaa88' },
-  egypt:   { name: 'מצרים',             align: 'ניטרלי',  color: '#7aaa88' },
-  turkey:  { name: 'טורקיה',            align: 'ניטרלי',  color: '#7aaa88' },
-  saudi:   { name: 'ערב הסעודית',       align: 'ניטרלי',  color: '#7aaa88' },
-  kuwait:  { name: 'כווית',             align: 'ניטרלי',  color: '#7aaa88' },
-  uae:     { name: 'איחוד האמירויות',   align: 'ניטרלי',  color: '#7aaa88' },
-  yemen:   { name: 'תימן',              align: 'ניטרלי',  color: '#7aaa88' },
-  oman:    { name: 'עומאן',             align: 'ניטרלי',  color: '#7aaa88' },
-  cyprus:  { name: 'קפריסין',           align: 'ניטרלי',  color: '#7aaa88' },
+const ISRAEL_ID = 376;
+const IRAN_ID = 364;
+
+const CAPITALS = {
+  [ISRAEL_ID]: { coords: [35.2163, 31.7683], name: "ירושלים" },
+  [IRAN_ID]:   { coords: [51.3890, 35.6892], name: "טהרן"    },
 };
 
-countries.forEach(el => {
-  const id = el.id;
-  const info = countryInfo[id];
-  if (!info) return;
+function drawMap(containerId, feature, capital) {
+  const container = document.getElementById(containerId);
+  const w = container.clientWidth  || 400;
+  const h = container.clientHeight || 400;
 
-  el.addEventListener('mouseenter', () => {
-    tooltip.textContent = `${info.name}  —  ${info.align}`;
-    tooltip.setAttribute('fill', info.color);
-  });
+  const svg = d3.select(`#${containerId}`)
+    .append("svg")
+    .attr("viewBox", `0 0 ${w} ${h}`)
+    .attr("preserveAspectRatio", "xMidYMid meet");
 
-  el.addEventListener('mouseleave', () => {
-    tooltip.textContent = 'רחף מעל מדינה לפרטים';
-    tooltip.setAttribute('fill', '#5a8aaa');
-  });
-});
+  // Water background
+  svg.append("rect")
+    .attr("width", w).attr("height", h)
+    .attr("fill", "#b0c8d8");
 
-startBtn.addEventListener('click', () => {
-  // placeholder — game screen will be built next
-  alert('המשחק יתחיל בקרוב! שלב ראשון: מסך הפתיחה מוכן.');
+  const projection = d3.geoMercator()
+    .fitExtent([[24, 24], [w - 24, h - 24]], feature);
+
+  const path = d3.geoPath().projection(projection);
+
+  svg.append("path")
+    .datum(feature)
+    .attr("class", "country-shape")
+    .attr("d", path);
+
+  if (capital) {
+    const [cx, cy] = projection(capital.coords);
+
+    svg.append("circle")
+      .attr("class", "capital-dot")
+      .attr("cx", cx).attr("cy", cy).attr("r", 5);
+
+    svg.append("text")
+      .attr("class", "capital-label")
+      .attr("x", cx + 8).attr("y", cy + 4)
+      .text(capital.name);
+  }
+}
+
+async function init() {
+  try {
+    const world = await d3.json(WORLD_URL);
+    const features = topojson.feature(world, world.objects.countries).features;
+
+    const israel = features.find(d => +d.id === ISRAEL_ID);
+    const iran   = features.find(d => +d.id === IRAN_ID);
+
+    if (israel) drawMap("israel-map", israel, CAPITALS[ISRAEL_ID]);
+    if (iran)   drawMap("iran-map",   iran,   CAPITALS[IRAN_ID]);
+  } catch (e) {
+    console.error("Failed to load map data:", e);
+  }
+}
+
+init();
+
+document.getElementById("start-btn").addEventListener("click", () => {
+  alert("המשחק יתחיל בקרוב!");
 });

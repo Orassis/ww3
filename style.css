@@ -13,270 +13,113 @@ body {
   overflow: hidden;
 }
 
-#main-screen {
+#app {
   display: flex;
   flex-direction: column;
   align-items: center;
   height: 100vh;
-  padding: 10px 14px 8px;
-  gap: 8px;
+  padding: 16px 20px 12px;
+  gap: 14px;
 }
 
 /* Header */
 header {
   text-align: center;
+  flex-shrink: 0;
 }
 
 h1 {
-  font-size: clamp(1.1rem, 3vw, 1.8rem);
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
   color: #d4af37;
-  text-shadow: 0 0 24px rgba(212, 175, 55, 0.55);
-  letter-spacing: 3px;
-  white-space: nowrap;
+  text-shadow: 0 0 24px rgba(212, 175, 55, 0.5);
+  letter-spacing: 4px;
 }
 
 .subtitle {
-  font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+  font-size: 0.85rem;
   color: #5a7a9a;
-  margin-top: 4px;
+  margin-top: 3px;
   letter-spacing: 1px;
-  white-space: nowrap;
 }
 
-/* Map */
-#map-container {
+/* Maps container */
+#maps-container {
+  display: flex;
+  gap: 16px;
   flex: 1;
   width: 100%;
-  max-width: 920px;
-  border: 1px solid #1a3a5a;
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 0 40px rgba(0, 80, 180, 0.18), inset 0 0 60px rgba(0, 0, 0, 0.4);
+  max-width: 1000px;
   min-height: 0;
-  display: flex;
-  align-items: stretch;
-}
-
-#middle-east-map {
-  width: 100%;
-  height: 100%;
-  display: block;
-  min-height: 280px;
-}
-
-/* Grid */
-.grid line {
-  stroke: rgba(40, 80, 120, 0.3);
-  stroke-width: 0.5;
-}
-
-/* Countries */
-.country {
-  fill: #1e4d2b;
-  stroke: #0f2a18;
-  stroke-width: 1;
-  cursor: pointer;
-  transition: fill 0.2s ease;
-}
-
-.country:hover {
-  fill: #2d6e3e;
-}
-
-.country.israel {
-  fill: #163d7a;
-  stroke: #2f6fbf;
-  stroke-width: 2;
-}
-
-.country.israel:hover {
-  fill: #1e52a0;
-}
-
-.country.iran {
-  fill: #6e1616;
-  stroke: #bf2f2f;
-  stroke-width: 2;
-}
-
-.country.iran:hover {
-  fill: #8c1e1e;
-}
-
-/* Labels */
-.country-label {
-  fill: #7aaa88;
-  font-size: 10px;
-  font-family: Arial, sans-serif;
-  text-anchor: middle;
-  pointer-events: none;
-}
-
-.israel-label {
-  fill: #6aabff;
-  font-weight: bold;
-  font-size: 9px;
-}
-
-.iran-label {
-  fill: #ff7a7a;
-  font-weight: bold;
-  font-size: 14px;
-}
-
-/* Capitals */
-.capital {
-  pointer-events: none;
-}
-
-.israel-capital {
-  fill: #4499ff;
-  filter: drop-shadow(0 0 5px #4499ff);
-}
-
-.iran-capital {
-  fill: #ff4444;
-  filter: drop-shadow(0 0 5px #ff4444);
-}
-
-/* Radar pulse animation */
-.radar-pulse {
-  fill: none;
-  stroke-width: 1.5;
-  opacity: 0;
-  animation: pulse 3s ease-out infinite;
-}
-
-.israel-pulse {
-  stroke: #4499ff;
-}
-
-.iran-pulse {
-  stroke: #ff4444;
-}
-
-.delay1 {
-  animation-delay: 1.5s;
-}
-
-@keyframes pulse {
-  0%   { r: 8;  opacity: 0.8; }
-  100% { r: 40; opacity: 0; }
-}
-
-/* Tooltip */
-.tooltip-text {
-  fill: #5a8aaa;
-  font-size: 11px;
-  font-family: Arial, sans-serif;
-}
-
-/* Info panel */
-#info-panel {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  background: #0a1625;
-  border: 1px solid #1a3050;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 920px;
-  padding: 10px 12px;
-  flex-shrink: 0;
   direction: ltr;
 }
 
-.faction {
+.map-panel {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   min-width: 0;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
 }
 
 .flag {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
 }
 
-.faction h2 {
-  font-size: clamp(0.9rem, 2vw, 1.15rem);
+.map-panel h2 {
+  font-size: 1.2rem;
   font-weight: bold;
 }
 
-.israel-faction h2 { color: #6aabff; }
-.iran-faction h2   { color: #ff7a7a; }
+#israel-panel h2 { color: #6aabff; }
+#iran-panel h2   { color: #ff7a7a; }
 
-.faction {
-  direction: rtl;
-}
-
-.iran-faction {
-  text-align: right;
-}
-
-.stats {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.stat .label {
-  font-size: clamp(0.62rem, 1.2vw, 0.75rem);
-  color: #5a7a9a;
-  min-width: 56px;
-  text-align: right;
-  white-space: nowrap;
-}
-
-.bar {
+.map-view {
   flex: 1;
-  height: 5px;
-  background: #0f1e30;
-  border-radius: 3px;
+  border-radius: 8px;
   overflow: hidden;
-  max-width: 90px;
+  border: 1px solid #2a3a4a;
+  min-height: 0;
+  background: #b0c8d8;
 }
 
-.israel-faction .bar .fill {
+.map-view svg {
+  display: block;
+  width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, #1a5aaa, #4499ff);
-  border-radius: 3px;
 }
 
-.iran-faction .bar .fill {
-  height: 100%;
-  background: linear-gradient(90deg, #ff4444, #aa1a1a);
-  border-radius: 3px;
+/* Country paths */
+.country-shape {
+  fill: #ede8d5;
+  stroke: #8a9a7a;
+  stroke-width: 1.5;
 }
 
-/* Center panel */
-.center-panel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 0 12px;
-  flex: 0 0 auto;
-  min-width: 0;
+.capital-dot {
+  fill: #333;
 }
 
-.vs-text {
-  font-size: clamp(1rem, 4vw, 2rem);
-  font-weight: 900;
-  color: #d4af37;
-  text-shadow: 0 0 16px rgba(212, 175, 55, 0.6);
-  letter-spacing: 2px;
+.capital-label {
+  font-size: 11px;
+  fill: #222;
+  font-family: Arial, sans-serif;
 }
 
-.btn-primary {
-  padding: 8px clamp(8px, 3vw, 20px);
-  font-size: clamp(0.75rem, 2.5vw, 1rem);
+/* Action bar */
+#action-bar {
+  flex-shrink: 0;
+  padding-bottom: 4px;
+}
+
+#start-btn {
+  padding: 12px 50px;
   background: linear-gradient(135deg, #1a5a28, #28922e);
   color: #d0ffd4;
   border: 1px solid #3ab844;
@@ -284,23 +127,14 @@ h1 {
   font-size: 1rem;
   font-family: inherit;
   font-weight: bold;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   cursor: pointer;
   box-shadow: 0 0 18px rgba(42, 160, 60, 0.35);
   transition: all 0.2s;
 }
 
-.btn-primary:hover {
+#start-btn:hover {
   background: linear-gradient(135deg, #22742e, #32b03c);
   box-shadow: 0 0 26px rgba(42, 160, 60, 0.55);
   transform: translateY(-1px);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-/* Hover highlight for country names */
-.country-hover-name {
-  transition: fill 0.2s;
 }
