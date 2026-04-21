@@ -746,6 +746,18 @@ h1 {
 .effect-pos { color: #7aee88; }
 .effect-neu { color: #aaaaaa; }
 
+@keyframes critical-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.15; }
+}
+.critical-blink {
+  animation: critical-blink 0.7s ease-in-out infinite;
+  color: #ff3a3a !important;
+}
+.nuclear-safe {
+  color: #4caf50 !important;
+}
+
 /* ── Center column (calendar + next turn) ── */
 #center-column {
   display: flex;

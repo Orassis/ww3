@@ -151,14 +151,24 @@ function updateTurnUI() {
 function updateResourcesUI() {
   document.getElementById("val-money").textContent =
     "$" + state.money.toLocaleString("en-US");
+
   document.getElementById("val-popularity").textContent = state.popularity + "%";
   document.getElementById("fill-popularity").style.width = state.popularity + "%";
+  document.getElementById("val-popularity").classList.toggle("critical-blink", state.popularity <= 10);
+
   document.getElementById("val-security").textContent = state.security + "%";
-  document.getElementById("fill-security").style.width   = state.security + "%";
-  document.getElementById("val-nuclear").textContent    = state.nuclear + "%";
-  document.getElementById("fill-nuclear").style.width   = state.nuclear + "%";
+  document.getElementById("fill-security").style.width = state.security + "%";
+  document.getElementById("val-security").classList.toggle("critical-blink", state.security <= 10);
+
   document.getElementById("val-legitimacy").textContent = state.legitimacy + "%";
   document.getElementById("fill-legitimacy").style.width = state.legitimacy + "%";
+  document.getElementById("val-legitimacy").classList.toggle("critical-blink", state.legitimacy <= 10);
+
+  const nucEl = document.getElementById("val-nuclear");
+  nucEl.textContent = state.nuclear + "%";
+  document.getElementById("fill-nuclear").style.width = state.nuclear + "%";
+  nucEl.classList.toggle("critical-blink", state.nuclear >= 90);
+  nucEl.classList.toggle("nuclear-safe",   state.nuclear <= 30 && state.nuclear < 90);
 }
 
 let playerName = "";
