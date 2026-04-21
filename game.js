@@ -307,16 +307,14 @@ const ACTION_CATEGORIES = {
         onSuccess: [
           { label: "💰 עלות: $12,000",   key: "money",      delta: -12000 },
           { label: "📣 פופולאריות: +5%", key: "popularity", delta: +5    },
-          { label: "🛡️ ביטחון: +10%",   key: "security",   delta: +10   },
           { label: "☢️ גרעין: −15%",    key: "nuclear",    delta: -15,   lowerIsBetter: true },
           { label: "🌐 לגיטימציה: −10%", key: "legitimacy", delta: -10   },
         ],
         onFail: [
-          { label: "💰 עלות: $12,000",      key: "money",      delta: -12000 },
-          { label: "📣 פופולאריות: −5%",    key: "popularity", delta: -5    },
-          { label: "🛡️ ביטחון: ללא שינוי", key: "security",   delta: 0     },
-          { label: "☢️ גרעין: ללא שינוי",  key: "nuclear",    delta: 0     },
-          { label: "🌐 לגיטימציה: −5%",    key: "legitimacy", delta: -5    },
+          { label: "💰 עלות: $12,000",   key: "money",      delta: -12000 },
+          { label: "📣 פופולאריות: −5%", key: "popularity", delta: -5    },
+          { label: "☢️ גרעין: ללא שינוי", key: "nuclear",   delta: 0     },
+          { label: "🌐 לגיטימציה: −5%",  key: "legitimacy", delta: -5    },
         ]
       },
       {
@@ -326,7 +324,6 @@ const ACTION_CATEGORIES = {
           { label: "💰 עלות: $20,000",   key: "money",      delta: -20000 },
           { label: "☢️ גרעין: −10%",    key: "nuclear",    delta: -10,   lowerIsBetter: true },
           { label: "🌐 לגיטימציה: −10%", key: "legitimacy", delta: -10   },
-          { label: "🛡️ ביטחון: +15%",   key: "security",   delta: +15   },
         ],
         onFail: []
       },
