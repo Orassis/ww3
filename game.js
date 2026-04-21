@@ -256,30 +256,28 @@ function initArrowSystem() {
 
 // ── Action categories ──
 const ACTION_CATEGORIES = {
-  "מודיעין": {
-    icon: "📋",
+  "עורף הישראלי": {
+    icon: "🏘️",
     choices: [
       {
-        title: "ריגול לוויני",
+        title: "קמפיין תקשורתי",
         effects: [
-          { label: "☢️ גרעין: −5%",    key: "nuclear",     delta: -5,     lowerIsBetter: true },
-          { label: "💰 עלות: $8,000",   key: "money",       delta: -8000  },
+          { label: "📣 פופולאריות: +10%", key: "popularity",  delta: +10    },
+          { label: "💰 עלות: $10,000",    key: "money",       delta: -10000 },
         ]
       },
       {
-        title: "חדירת סוכן",
+        title: "שיקום זירות נפילה",
         effects: [
-          { label: "☢️ גרעין: −12%",   key: "nuclear",     delta: -12,    lowerIsBetter: true },
-          { label: "🛡️ ביטחון: +5%",   key: "security",    delta: +5     },
-          { label: "💰 עלות: $18,000",  key: "money",       delta: -18000 },
+          { label: "🛡️ ביטחון: +10%",    key: "security",    delta: +10    },
+          { label: "💰 עלות: $7,000",     key: "money",       delta: -7000  },
         ]
       },
       {
-        title: "חיסול ממוקד",
+        title: "מצב חירום בעורף",
         effects: [
-          { label: "☢️ גרעין: −8%",    key: "nuclear",     delta: -8,     lowerIsBetter: true },
-          { label: "🌐 לגיטימציה: −15%", key: "legitimacy", delta: -15    },
-          { label: "💰 עלות: $25,000",  key: "money",       delta: -25000 },
+          { label: "📣 פופולאריות: −30%", key: "popularity",  delta: -30    },
+          { label: "🛡️ ביטחון: +20%",    key: "security",    delta: +20    },
         ]
       },
     ]
