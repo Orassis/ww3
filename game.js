@@ -1041,7 +1041,7 @@ function launchMissile() {
 
   let intercepted = false;
   let cleaned = false;
-  const DURATION = 10000;
+  const DURATION = 8000;
   const startTime = performance.now();
 
   function cleanup() {
