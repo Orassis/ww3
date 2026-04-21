@@ -424,6 +424,118 @@ h1 {
   min-width: 36px;
 }
 
+/* ── Event Modal ── */
+#event-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 10, 20, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  backdrop-filter: blur(4px);
+  padding: 20px;
+}
+
+#event-overlay.hidden { display: none; }
+
+#event-modal {
+  background: #0a1828;
+  border: 1px solid #c8a020;
+  border-radius: 12px;
+  width: min(620px, 96vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 0 60px rgba(200, 160, 32, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+#event-header {
+  background: linear-gradient(135deg, #1a1000, #2a1a00);
+  border-bottom: 1px solid #c8a020;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 12px 12px 0 0;
+}
+
+.event-tag {
+  font-size: 0.8rem;
+  background: #c8a020;
+  color: #0a0800;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+#event-header h2 {
+  font-size: 1.1rem;
+  color: #d4af37;
+  letter-spacing: 1px;
+}
+
+#event-body {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #1e3050;
+}
+
+#event-text {
+  font-size: 0.95rem;
+  color: #c8d8e8;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+#event-choices {
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  direction: rtl;
+}
+
+.choice-btn {
+  background: #0d1e30;
+  border: 1px solid #2a4a6a;
+  border-radius: 8px;
+  padding: 14px 18px;
+  cursor: pointer;
+  text-align: right;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.choice-btn:hover {
+  border-color: #d4af37;
+  background: #122030;
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.15);
+}
+
+.choice-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #e0e8f0;
+}
+
+.choice-effects {
+  font-size: 0.78rem;
+  color: #6a8aaa;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.effect-neg { color: #ff7a7a; }
+.effect-pos { color: #7aee88; }
+.effect-neu { color: #aaaaaa; }
+
 /* ── Game action buttons ── */
 #game-actions {
   display: flex;

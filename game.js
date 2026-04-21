@@ -136,9 +136,11 @@ function updateResourcesUI() {
   document.getElementById("val-money").textContent =
     "$" + state.money.toLocaleString("en-US");
   document.getElementById("val-popularity").textContent = state.popularity + "%";
-  document.getElementById("fill-popularity").style.width  = state.popularity + "%";
+  document.getElementById("fill-popularity").style.width = state.popularity + "%";
   document.getElementById("val-security").textContent = state.security + "%";
-  document.getElementById("fill-security").style.width    = state.security + "%";
+  document.getElementById("fill-security").style.width   = state.security + "%";
+  document.getElementById("val-nuclear").textContent  = state.nuclear + "%";
+  document.getElementById("fill-nuclear").style.width = state.nuclear + "%";
 }
 
 confirmBtn.addEventListener("click", () => {
@@ -167,4 +169,92 @@ confirmBtn.addEventListener("click", () => {
       <button class="action-btn">🤝 דיפלומטיה</button>
     </div>
   `;
+
+  // Show first event after 5 seconds
+  setTimeout(() => showEvent(firstEvent(name)), 5000);
 });
+
+// ── Events ──
+function firstEvent(playerName) {
+  return {
+    title: "דיווח מודיעיני דחוף",
+    text:
+`שלום ${playerName},
+ברכות על מינויך לראש ממשלת ישראל.
+
+אחרי שנים של מתיחות — האיום האיראני הגיע לשיא.
+תוכנית הגרעין מתקדמת במהירות.
+הזמן אוזל.
+
+בחר את אופן הפעולה:`,
+    choices: [
+      {
+        title: "⚔️ תקיפה רחבה",
+        desc: "מכת פתיחה עוצמתית ברחבי איראן כנגד אתרי גרעין",
+        effects: [
+          { label: "💰 עלות: $40,000",  key: "money",      delta: -40000 },
+          { label: "📣 פופולאריות: +15%", key: "popularity", delta: +15   },
+          { label: "☢️ גרעין: −60%",     key: "nuclear",    delta: -60   },
+        ]
+      },
+      {
+        title: "🎯 תקיפה ממוקדת",
+        desc: "תקיפות ממוקדות בבסיסים איראניים",
+        effects: [
+          { label: "💰 עלות: $25,000",   key: "money",      delta: -25000 },
+          { label: "📣 פופולאריות: +5%",  key: "popularity", delta: +5    },
+          { label: "☢️ גרעין: −30%",      key: "nuclear",    delta: -30   },
+        ]
+      },
+      {
+        title: "💻 תקיפות סייבר",
+        desc: "תקיפות חשאיות בניסיון לצמצם את היכולות האיראניות",
+        effects: [
+          { label: "💰 עלות: $10,000",    key: "money",      delta: -10000 },
+          { label: "📣 פופולאריות: ללא שינוי", key: "popularity", delta: 0 },
+          { label: "☢️ גרעין: −15%",       key: "nuclear",    delta: -15  },
+        ]
+      },
+    ]
+  };
+}
+
+function showEvent(event) {
+  const overlay = document.getElementById("event-overlay");
+  document.getElementById("event-title").textContent = event.title;
+  document.getElementById("event-text").textContent  = event.text;
+
+  const choicesEl = document.getElementById("event-choices");
+  choicesEl.innerHTML = "";
+
+  event.choices.forEach(choice => {
+    const btn = document.createElement("button");
+    btn.className = "choice-btn";
+
+    const effectsHtml = choice.effects.map(e => {
+      const cls = e.delta < 0 ? "effect-neg" : e.delta > 0 ? "effect-pos" : "effect-neu";
+      return `<span class="${cls}">${e.label}</span>`;
+    }).join("");
+
+    btn.innerHTML = `
+      <span class="choice-title">${choice.title}</span>
+      <span class="choice-desc" style="font-size:0.82rem;color:#8899aa">${choice.desc}</span>
+      <div class="choice-effects">${effectsHtml}</div>
+    `;
+
+    btn.addEventListener("click", () => {
+      choice.effects.forEach(e => {
+        state[e.key] = Math.max(0, Math.min(
+          e.key === "money" ? Infinity : 100,
+          state[e.key] + e.delta
+        ));
+      });
+      updateResourcesUI();
+      overlay.classList.add("hidden");
+    });
+
+    choicesEl.appendChild(btn);
+  });
+
+  overlay.classList.remove("hidden");
+}
