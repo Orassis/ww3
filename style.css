@@ -989,11 +989,12 @@ h1 {
 
 .action-wrap {
   position: relative;
+  flex: 1;
 }
 
 .action-btn {
   padding: 10px 20px;
-  min-width: 110px;
+  width: 100%;
   background: #0d1f35;
   color: #c8d8e8;
   border: 1px solid #2a4a6a;
