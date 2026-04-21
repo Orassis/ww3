@@ -194,18 +194,196 @@ document.getElementById("briefing-start-btn").addEventListener("click", () => {
 
   // Replace start button with action buttons
   const bar = document.getElementById("action-bar");
-  bar.innerHTML = `
-    <div id="game-actions">
-      <button class="action-btn">📋 מודיעין</button>
-      <button class="action-btn">⚔️ תקיפה</button>
-      <button class="action-btn">💹 כלכלה</button>
-      <button class="action-btn">🤝 דיפלומטיה</button>
-    </div>
-  `;
+  bar.innerHTML = `<div id="game-actions"></div>`;
+  const gameActions = document.getElementById("game-actions");
+
+  Object.entries(ACTION_CATEGORIES).forEach(([name, cat]) => {
+    const wrap = document.createElement("div");
+    wrap.className = "action-wrap";
+
+    const btn = document.createElement("button");
+    btn.className = "action-btn";
+    btn.textContent = cat.icon + " " + name;
+
+    const popup = buildActionPopup(name, cat);
+    wrap.appendChild(popup);
+    wrap.appendChild(btn);
+    gameActions.appendChild(wrap);
+
+    let hideTimer = null;
+    const show = () => { clearTimeout(hideTimer); popup.classList.add("visible"); };
+    const hideDelayed = () => { hideTimer = setTimeout(() => popup.classList.remove("visible"), 120); };
+
+    btn.addEventListener("mouseenter", show);
+    btn.addEventListener("mouseleave", hideDelayed);
+    popup.addEventListener("mouseenter", () => clearTimeout(hideTimer));
+    popup.addEventListener("mouseleave", hideDelayed);
+  });
 
   // Show first event after 5 seconds
   setTimeout(() => showEvent(firstEvent(playerName)), 5000);
 });
+
+// ── Action categories ──
+const ACTION_CATEGORIES = {
+  "מודיעין": {
+    icon: "📋",
+    choices: [
+      {
+        title: "ריגול לוויני",
+        effects: [
+          { label: "☢️ גרעין: −5%",    key: "nuclear",     delta: -5,     lowerIsBetter: true },
+          { label: "💰 עלות: $8,000",   key: "money",       delta: -8000  },
+        ]
+      },
+      {
+        title: "חדירת סוכן",
+        effects: [
+          { label: "☢️ גרעין: −12%",   key: "nuclear",     delta: -12,    lowerIsBetter: true },
+          { label: "🛡️ ביטחון: +5%",   key: "security",    delta: +5     },
+          { label: "💰 עלות: $18,000",  key: "money",       delta: -18000 },
+        ]
+      },
+      {
+        title: "חיסול ממוקד",
+        effects: [
+          { label: "☢️ גרעין: −8%",    key: "nuclear",     delta: -8,     lowerIsBetter: true },
+          { label: "🌐 לגיטימציה: −15%", key: "legitimacy", delta: -15    },
+          { label: "💰 עלות: $25,000",  key: "money",       delta: -25000 },
+        ]
+      },
+    ]
+  },
+  "תקיפה": {
+    icon: "⚔️",
+    choices: [
+      {
+        title: "תקיפה אווירית",
+        effects: [
+          { label: "☢️ גרעין: −25%",   key: "nuclear",     delta: -25,    lowerIsBetter: true },
+          { label: "📣 פופולאריות: +10%", key: "popularity", delta: +10   },
+          { label: "🌐 לגיטימציה: −20%", key: "legitimacy", delta: -20   },
+          { label: "💰 עלות: $35,000",  key: "money",       delta: -35000 },
+        ]
+      },
+      {
+        title: "מתקפת סייבר",
+        effects: [
+          { label: "☢️ גרעין: −12%",   key: "nuclear",     delta: -12,    lowerIsBetter: true },
+          { label: "🌐 לגיטימציה: −5%", key: "legitimacy",  delta: -5    },
+          { label: "💰 עלות: $12,000",  key: "money",       delta: -12000 },
+        ]
+      },
+      {
+        title: "פעולת קומנדו",
+        effects: [
+          { label: "☢️ גרעין: −18%",   key: "nuclear",     delta: -18,    lowerIsBetter: true },
+          { label: "🛡️ ביטחון: +8%",   key: "security",    delta: +8     },
+          { label: "🌐 לגיטימציה: −10%", key: "legitimacy", delta: -10   },
+          { label: "💰 עלות: $22,000",  key: "money",       delta: -22000 },
+        ]
+      },
+    ]
+  },
+  "כלכלה": {
+    icon: "💹",
+    choices: [
+      {
+        title: "גיוס תרומות",
+        effects: [
+          { label: "💰 כסף: +$25,000",  key: "money",       delta: +25000 },
+          { label: "📣 פופולאריות: −5%", key: "popularity",  delta: -5    },
+        ]
+      },
+      {
+        title: "חיזוק תעשיית הביטחון",
+        effects: [
+          { label: "🛡️ ביטחון: +15%",  key: "security",    delta: +15   },
+          { label: "💰 עלות: $20,000",  key: "money",       delta: -20000 },
+        ]
+      },
+      {
+        title: "סנקציות על איראן",
+        effects: [
+          { label: "☢️ גרעין: −8%",    key: "nuclear",     delta: -8,     lowerIsBetter: true },
+          { label: "🌐 לגיטימציה: +10%", key: "legitimacy", delta: +10   },
+          { label: "💰 עלות: $5,000",   key: "money",       delta: -5000  },
+        ]
+      },
+    ]
+  },
+  "דיפלומטיה": {
+    icon: "🤝",
+    choices: [
+      {
+        title: "שיחות ישירות",
+        effects: [
+          { label: "🌐 לגיטימציה: +20%", key: "legitimacy", delta: +20   },
+          { label: "☢️ גרעין: −5%",    key: "nuclear",     delta: -5,     lowerIsBetter: true },
+        ]
+      },
+      {
+        title: "בניית קואליציה",
+        effects: [
+          { label: "🌐 לגיטימציה: +15%", key: "legitimacy", delta: +15  },
+          { label: "🛡️ ביטחון: +5%",   key: "security",    delta: +5    },
+          { label: "💰 עלות: $10,000",  key: "money",       delta: -10000 },
+        ]
+      },
+      {
+        title: "לחץ בינלאומי",
+        effects: [
+          { label: "☢️ גרעין: −10%",   key: "nuclear",     delta: -10,    lowerIsBetter: true },
+          { label: "🌐 לגיטימציה: −5%", key: "legitimacy",  delta: -5    },
+        ]
+      },
+    ]
+  },
+};
+
+function buildActionPopup(categoryName, cat) {
+  const popup = document.createElement("div");
+  popup.className = "action-popup";
+
+  const header = document.createElement("div");
+  header.className = "action-popup-header";
+  header.textContent = cat.icon + " " + categoryName;
+  popup.appendChild(header);
+
+  cat.choices.forEach(choice => {
+    const item = document.createElement("button");
+    item.className = "action-popup-item";
+
+    const effectsHtml = choice.effects.map(e => {
+      let cls;
+      if (e.delta === 0)        cls = "effect-neu";
+      else if (e.lowerIsBetter) cls = e.delta < 0 ? "effect-pos" : "effect-neg";
+      else                      cls = e.delta > 0 ? "effect-pos" : "effect-neg";
+      return `<span class="${cls}">${e.label}</span>`;
+    }).join("");
+
+    item.innerHTML = `
+      <span class="popup-choice-title">${choice.title}</span>
+      <div class="popup-choice-effects">${effectsHtml}</div>
+    `;
+
+    item.addEventListener("click", () => {
+      choice.effects.forEach(e => {
+        state[e.key] = Math.max(0, Math.min(
+          e.key === "money" ? Infinity : 100,
+          state[e.key] + e.delta
+        ));
+      });
+      updateResourcesUI();
+      popup.classList.remove("visible");
+      checkGameOver();
+    });
+
+    popup.appendChild(item);
+  });
+
+  return popup;
+}
 
 // ── Events ──
 function firstEvent(playerName) {

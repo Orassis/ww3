@@ -829,6 +829,10 @@ h1 {
   direction: rtl;
 }
 
+.action-wrap {
+  position: relative;
+}
+
 .action-btn {
   padding: 10px 20px;
   background: #0d1f35;
@@ -840,6 +844,7 @@ h1 {
   cursor: pointer;
   transition: all 0.2s;
   letter-spacing: 1px;
+  white-space: nowrap;
 }
 
 .action-btn:hover {
@@ -847,4 +852,71 @@ h1 {
   border-color: #4a7aaa;
   color: #e0eeff;
   transform: translateY(-1px);
+}
+
+/* ── Action popup ── */
+.action-popup {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0a1828;
+  border: 1px solid #2a4a6a;
+  border-radius: 10px;
+  padding: 10px;
+  min-width: 240px;
+  z-index: 300;
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 -8px 32px rgba(0, 60, 140, 0.35);
+  direction: rtl;
+}
+
+.action-popup.visible {
+  display: flex;
+}
+
+.action-popup-header {
+  font-size: 0.78rem;
+  font-weight: bold;
+  color: #5a7a9a;
+  letter-spacing: 2px;
+  padding: 2px 6px 8px;
+  border-bottom: 1px solid #1a3050;
+  margin-bottom: 2px;
+}
+
+.action-popup-item {
+  background: #0d1e30;
+  border: 1px solid #1e3a55;
+  border-radius: 7px;
+  padding: 10px 12px;
+  cursor: pointer;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transition: all 0.15s;
+  font-family: inherit;
+  width: 100%;
+}
+
+.action-popup-item:hover {
+  border-color: #d4af37;
+  background: #122030;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.12);
+}
+
+.popup-choice-title {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #e0e8f0;
+}
+
+.popup-choice-effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.74rem;
 }
