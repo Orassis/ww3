@@ -299,9 +299,32 @@ function showEvent(event) {
 }
 
 // ── Next Turn ──
-document.getElementById("next-turn-btn").addEventListener("click", () => {
+const nextTurnBtn = document.getElementById("next-turn-btn");
+
+function enableNextTurn() {
+  nextTurnBtn.disabled = false;
+  nextTurnBtn.textContent = "יום הבא ←";
+}
+
+function startNextTurnCooldown() {
+  nextTurnBtn.disabled = true;
+  let secs = 10;
+  nextTurnBtn.textContent = `המתן ${secs}s`;
+  const interval = setInterval(() => {
+    secs -= 1;
+    if (secs <= 0) {
+      clearInterval(interval);
+      enableNextTurn();
+    } else {
+      nextTurnBtn.textContent = `המתן ${secs}s`;
+    }
+  }, 1000);
+}
+
+nextTurnBtn.addEventListener("click", () => {
   if (state.turn >= 30) return;
   state.turn += 1;
   state.gameDate = new Date(state.gameDate.getTime() + 86400000);
   updateTurnUI();
+  startNextTurnCooldown();
 });
