@@ -1075,10 +1075,23 @@ h1 {
   width: 100%;
 }
 
-.action-popup-item:hover {
+.action-popup-item:hover:not(:disabled) {
   border-color: #d4af37;
   background: #122030;
   box-shadow: 0 0 10px rgba(212, 175, 55, 0.12);
+}
+
+.action-popup-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #333;
+}
+
+.cooldown-label {
+  display: block;
+  font-size: 0.72rem;
+  color: #ff9944;
+  margin-top: 4px;
 }
 
 .popup-choice-title {

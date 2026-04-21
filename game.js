@@ -138,6 +138,7 @@ const state = {
   turn:          1,
   gameDate:      new Date(2026, 3, 21),
   arrowBattery:  false,
+  cooldowns:     {},
 };
 
 function formatDate(d) {
@@ -526,6 +527,24 @@ const ACTION_CATEGORIES = {
   },
 };
 
+function refreshActionCooldowns() {
+  document.querySelectorAll(".action-popup-item[data-title]").forEach(btn => {
+    const cd = state.cooldowns[btn.dataset.title] || 0;
+    btn.disabled = cd > 0;
+    const label = btn.querySelector(".cooldown-label");
+    if (cd > 0) {
+      if (!label) {
+        const el = document.createElement("span");
+        el.className = "cooldown-label";
+        btn.appendChild(el);
+      }
+      btn.querySelector(".cooldown-label").textContent = `⏳ ${cd} תורות`;
+    } else if (label) {
+      label.remove();
+    }
+  });
+}
+
 function buildActionPopup(categoryName, cat) {
   const popup = document.createElement("div");
   popup.className = "action-popup";
@@ -576,7 +595,10 @@ function buildActionPopup(categoryName, cat) {
       `;
     }
 
+    item.dataset.title = choice.title;
+
     item.addEventListener("click", () => {
+      if (state.cooldowns[choice.title] > 0) return;
       let effects;
       if (hasChance) {
         const success = Math.random() * 100 < choice.successChance;
@@ -593,6 +615,8 @@ function buildActionPopup(categoryName, cat) {
       });
       if (choice.animation === "wideStrike")     launchAirStrike(5, 10, 15);
       if (choice.animation === "targetedStrike") launchAirStrike(1, 1, 3);
+      state.cooldowns[choice.title] = 3;
+      refreshActionCooldowns();
       showEffectFloats(effects);
       updateResourcesUI();
       popup.classList.remove("visible");
@@ -1321,6 +1345,10 @@ nextTurnBtn.addEventListener("click", () => {
   updateResourcesUI();
   showMoneyFloat("+$5,000");
 
+  Object.keys(state.cooldowns).forEach(k => {
+    if (state.cooldowns[k] > 0) state.cooldowns[k]--;
+  });
+  refreshActionCooldowns();
   updateTurnUI();
   checkGameOver();
   if (state.turn < 30 && state.nuclear < 100) startNextTurnCooldown();
