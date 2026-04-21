@@ -124,6 +124,22 @@ function updateConfirmBtn() {
   confirmBtn.disabled = !(selectedGender && nameInput.value.trim().length > 0);
 }
 
+// ── Game state ──
+const state = {
+  money:      50000,
+  popularity: 65,
+  security:   70,
+};
+
+function updateResourcesUI() {
+  document.getElementById("val-money").textContent =
+    "$" + state.money.toLocaleString("en-US");
+  document.getElementById("val-popularity").textContent = state.popularity + "%";
+  document.getElementById("fill-popularity").style.width  = state.popularity + "%";
+  document.getElementById("val-security").textContent = state.security + "%";
+  document.getElementById("fill-security").style.width    = state.security + "%";
+}
+
 confirmBtn.addEventListener("click", () => {
   const name   = nameInput.value.trim();
   const gender = selectedGender;
@@ -135,7 +151,11 @@ confirmBtn.addEventListener("click", () => {
   document.querySelector("h1").textContent = greeting;
   document.getElementById("subtitle").textContent = "ראש הממשלה של ישראל";
 
-  // Replace start button with placeholder action buttons
+  // Show resources bar
+  document.getElementById("resources-bar").classList.remove("hidden");
+  updateResourcesUI();
+
+  // Replace start button with action buttons
   const bar = document.getElementById("action-bar");
   bar.innerHTML = `
     <div id="game-actions">

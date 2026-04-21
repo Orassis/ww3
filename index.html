@@ -15,6 +15,42 @@
       <p class="subtitle" id="subtitle">סימולציית ניהול מלחמה</p>
     </header>
 
+    <div id="resources-bar" class="hidden">
+      <div class="resource" id="res-money">
+        <span class="res-icon">💰</span>
+        <div class="res-info">
+          <span class="res-label">כסף</span>
+          <span class="res-value" id="val-money">$50,000</span>
+        </div>
+      </div>
+      <div class="resource-divider"></div>
+      <div class="resource" id="res-popularity">
+        <span class="res-icon">📣</span>
+        <div class="res-info">
+          <span class="res-label">פופולאריות</span>
+          <div class="res-bar-wrap">
+            <div class="res-bar popularity-bar">
+              <div class="res-fill" id="fill-popularity" style="width:65%"></div>
+            </div>
+            <span class="res-pct" id="val-popularity">65%</span>
+          </div>
+        </div>
+      </div>
+      <div class="resource-divider"></div>
+      <div class="resource" id="res-security">
+        <span class="res-icon">🛡️</span>
+        <div class="res-info">
+          <span class="res-label">ביטחון</span>
+          <div class="res-bar-wrap">
+            <div class="res-bar security-bar">
+              <div class="res-fill" id="fill-security" style="width:70%"></div>
+            </div>
+            <span class="res-pct" id="val-security">70%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="maps-container">
       <div class="map-panel" id="israel-panel">
         <div class="panel-header">
