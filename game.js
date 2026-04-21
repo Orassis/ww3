@@ -242,6 +242,69 @@ document.getElementById("briefing-start-btn").addEventListener("click", () => {
   setTimeout(() => showEvent(firstEvent(playerName)), 5000);
 });
 
+const ARROW_SITES = [
+  [35.08, 32.82],
+  [34.90, 32.08],
+  [34.79, 31.25],
+];
+
+function getBatteriesViewport() {
+  if (!israelProjection) return [];
+  const svgEl = document.querySelector("#israel-map svg");
+  if (!svgEl) return [];
+  const svgRect = svgEl.getBoundingClientRect();
+  const vb = svgEl.viewBox.baseVal;
+  const sx = svgRect.width / vb.width;
+  const sy = svgRect.height / vb.height;
+  return ARROW_SITES.map(coords => {
+    const [px, py] = israelProjection(coords);
+    return { x: svgRect.left + px * sx, y: svgRect.top + py * sy };
+  });
+}
+
+function launchInterceptor(targetX, targetY, onImpact) {
+  const batteries = getBatteriesViewport();
+  if (!batteries.length) { onImpact(); return; }
+
+  // Nearest battery to the incoming missile
+  let origin = batteries[0], minD = Infinity;
+  batteries.forEach(b => {
+    const d = Math.hypot(b.x - targetX, b.y - targetY);
+    if (d < minD) { minD = d; origin = b; }
+  });
+
+  const layer = document.getElementById("missile-layer");
+  const g = document.createElementNS(SVG_NS, "g");
+
+  // Interceptor shape — slim blue/white missile
+  const body = document.createElementNS(SVG_NS, "polygon");
+  body.setAttribute("points", "9,0 -4,2.5 -2,0 -4,-2.5");
+  body.setAttribute("fill", "#88ddff");
+  const fin = document.createElementNS(SVG_NS, "polygon");
+  fin.setAttribute("points", "-2,0 -6,-4 -4,0 -6,4");
+  fin.setAttribute("fill", "#55aadd");
+  const exhaust = document.createElementNS(SVG_NS, "ellipse");
+  exhaust.setAttribute("cx", "-5"); exhaust.setAttribute("cy", "0");
+  exhaust.setAttribute("rx", "3"); exhaust.setAttribute("ry", "1.5");
+  exhaust.setAttribute("fill", "#ff9930");
+  g.appendChild(fin); g.appendChild(body); g.appendChild(exhaust);
+  layer.appendChild(g);
+
+  const DUR = 650;
+  const t0 = performance.now();
+  const angle = Math.atan2(targetY - origin.y, targetX - origin.x) * 180 / Math.PI;
+
+  function frame(now) {
+    const t = Math.min((now - t0) / DUR, 1);
+    const x = origin.x + (targetX - origin.x) * t;
+    const y = origin.y + (targetY - origin.y) * t;
+    g.setAttribute("transform", `translate(${x},${y}) rotate(${angle})`);
+    if (t < 1) requestAnimationFrame(frame);
+    else { g.remove(); onImpact(); }
+  }
+  requestAnimationFrame(frame);
+}
+
 function showArrowBatteries() {
   if (!israelProjection) return;
   const svg = d3.select("#israel-map svg");
@@ -1058,12 +1121,16 @@ function launchMissile() {
   btn.addEventListener("click", () => {
     if (intercepted) return;
     intercepted = true;
-    showExplosion(missileX, missileY);
-    state.money = Math.max(0, state.money - 1000);
-    showFloat("-$1,000", false, "val-money");
-    updateResourcesUI();
-    cleanup();
-    checkGameOver();
+    btn.remove();
+    const impactX = missileX, impactY = missileY;
+    launchInterceptor(impactX, impactY, () => {
+      showExplosion(impactX, impactY);
+      state.money = Math.max(0, state.money - 1000);
+      showFloat("-$1,000", false, "val-money");
+      updateResourcesUI();
+      cleanup();
+      checkGameOver();
+    });
   });
 
   function bezierTangent(t, p0, p1, p2) {
