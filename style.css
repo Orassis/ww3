@@ -367,15 +367,21 @@ h1 {
 /* ── Arrow battery system ── */
 #arrow-system {
   display: none;
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 24px);
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 6px 10px;
-  background: #0a1625;
-  border: 1px solid #1e3a55;
+  padding: 7px 12px;
+  background: rgba(5, 15, 30, 0.82);
+  border: 1px solid #1e4a7a;
   border-radius: 6px;
   direction: rtl;
-  flex-shrink: 0;
+  backdrop-filter: blur(2px);
+  z-index: 10;
 }
 
 #arrow-system.visible { display: flex; }
