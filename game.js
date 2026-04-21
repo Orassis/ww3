@@ -246,37 +246,49 @@ function showArrowBatteries() {
   if (!israelProjection) return;
   const svg = d3.select("#israel-map svg");
   const sites = [
-    { coords: [35.08, 32.82], label: "צפון" },
-    { coords: [34.90, 32.08], label: "מרכז" },
-    { coords: [34.79, 31.25], label: "דרום"  },
+    { coords: [35.08, 32.82] },
+    { coords: [34.90, 32.08] },
+    { coords: [34.79, 31.25] },
   ];
-  sites.forEach(({ coords, label }) => {
+  sites.forEach(({ coords }) => {
     const [cx, cy] = israelProjection(coords);
-    const g = svg.append("g").attr("class", "arrow-battery-marker");
-    // Radar dish base
+    const g = svg.append("g")
+      .attr("class", "arrow-battery-marker")
+      .attr("transform", `translate(${cx},${cy})`);
+
+    // Vehicle base
     g.append("rect")
-      .attr("x", cx - 5).attr("y", cy - 2)
-      .attr("width", 10).attr("height", 5)
-      .attr("rx", 1).attr("fill", "#2a4a7a");
-    // Dish arc
-    g.append("path")
-      .attr("d", `M${cx-7},${cy-2} A7,7 0 0,1 ${cx+7},${cy-2}`)
-      .attr("fill", "none")
-      .attr("stroke", "#4a9ae8")
-      .attr("stroke-width", 2);
-    // Beam line
-    g.append("line")
-      .attr("x1", cx).attr("y1", cy - 9)
-      .attr("x2", cx).attr("y2", cy - 2)
-      .attr("stroke", "#4a9ae8").attr("stroke-width", 1.5);
-    // Label
-    g.append("text")
-      .attr("x", cx).attr("y", cy + 12)
-      .attr("text-anchor", "middle")
-      .attr("font-size", "7px")
-      .attr("fill", "#7ab8e8")
-      .attr("font-family", "inherit")
-      .text("🛡 " + label);
+      .attr("x", -8).attr("y", -3)
+      .attr("width", 16).attr("height", 5)
+      .attr("rx", 1).attr("fill", "#2d5a2d");
+
+    // Wheels
+    [-5, 0, 5].forEach(ox => {
+      g.append("circle")
+        .attr("cx", ox).attr("cy", 3)
+        .attr("r", 2).attr("fill", "#1a351a");
+    });
+
+    // Launcher arm + missile tubes (angled ~55° from horizontal)
+    const arm = g.append("g").attr("transform", "rotate(-55)");
+
+    // Arm beam
+    arm.append("rect")
+      .attr("x", -1.5).attr("y", -16)
+      .attr("width", 3).attr("height", 16)
+      .attr("fill", "#4a7a4a");
+
+    // 3 missile tubes along the arm
+    [-3.5, 0, 3.5].forEach(ox => {
+      arm.append("rect")
+        .attr("x", ox - 1.2).attr("y", -15)
+        .attr("width", 2.4).attr("height", 9)
+        .attr("rx", 0.8).attr("fill", "#6aaa5a");
+      // Missile tip
+      arm.append("polygon")
+        .attr("points", `${ox},${-15} ${ox-1.2},${-15-3} ${ox+1.2},${-15-3}`)
+        .attr("fill", "#aad888");
+    });
   });
 }
 
