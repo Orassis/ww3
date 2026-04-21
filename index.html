@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>World War 3</title>
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
 </head>
@@ -64,6 +64,13 @@
       </div>
     </div>
 
+    <div id="main-layout">
+    <div id="event-log" class="hidden">
+      <div id="log-header">📋 יומן אירועים</div>
+      <div id="log-content"></div>
+    </div>
+
+    <div id="maps-and-actions">
     <div id="maps-container">
       <div class="map-panel" id="israel-panel">
         <div class="panel-header">
@@ -117,6 +124,8 @@
     <div id="action-bar">
       <button id="start-btn">התחל משחק</button>
     </div>
+    </div><!-- /maps-and-actions -->
+    </div><!-- /main-layout -->
   </div>
 
   <!-- Character Selection Modal -->

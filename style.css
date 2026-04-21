@@ -42,13 +42,100 @@ h1 {
   letter-spacing: 1px;
 }
 
+/* Main layout: event log + maps side by side */
+#main-layout {
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  direction: ltr;
+}
+
+#maps-and-actions {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+
+/* Event Log */
+#event-log {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: #0a1520;
+  border: 1px solid #1e3048;
+  border-radius: 10px;
+  overflow: hidden;
+  direction: rtl;
+}
+
+#event-log.hidden { display: none; }
+
+#log-header {
+  background: #0f1e30;
+  padding: 8px 12px;
+  border-bottom: 1px solid #1e3048;
+  font-size: 0.78rem;
+  color: #5a8aaa;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+#log-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  scrollbar-width: thin;
+  scrollbar-color: #1e3048 transparent;
+}
+
+.log-day-header {
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #4a7a9a;
+  text-align: center;
+  padding: 5px 4px 3px;
+  border-top: 1px solid #1e3048;
+  margin-top: 3px;
+  letter-spacing: 0.5px;
+}
+
+.log-day-header:first-child { border-top: none; margin-top: 0; }
+
+.log-entry {
+  font-size: 0.7rem;
+  color: #8aacbe;
+  padding: 4px 7px;
+  border-radius: 4px;
+  line-height: 1.45;
+  background: rgba(255,255,255,0.02);
+  border-right: 2px solid transparent;
+}
+
+.log-start   { border-right-color: #d4af37; color: #c0d0e0; }
+.log-action  { border-right-color: #4a8aff; }
+.log-missile { border-right-color: #ff5a3a; background: rgba(255,60,0,0.05); color: #ccaaaa; }
+.log-quiet   { border-right-color: #3a9a5a; color: #7abf8a; }
+
+.log-eff-pos { color: #4adf7a; font-weight: bold; }
+.log-eff-neg { color: #ff6a6a; font-weight: bold; }
+
 /* Maps container */
 #maps-container {
   display: flex;
   gap: 16px;
   flex: 1;
   width: 100%;
-  max-width: 1000px;
   min-height: 0;
   direction: ltr;
 }

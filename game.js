@@ -139,6 +139,7 @@ const state = {
   gameDate:      new Date(2026, 3, 21),
   arrowBattery:  false,
   cooldowns:     {},
+  turnMissiles:  { fired: 0, intercepted: 0, hit: 0 },
 };
 
 function formatDate(d) {
@@ -146,6 +147,33 @@ function formatDate(d) {
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const yyyy = d.getFullYear();
   return `${dd}.${mm}.${yyyy}`;
+}
+
+function addLogDayHeader(turn, date) {
+  const log = document.getElementById("log-content");
+  if (!log) return;
+  const el = document.createElement("div");
+  el.className = "log-day-header";
+  el.textContent = `יום ${turn} | ${formatDate(date)}`;
+  log.appendChild(el);
+  log.scrollTop = log.scrollHeight;
+}
+
+function addLogEntry(html, type = "info") {
+  const log = document.getElementById("log-content");
+  if (!log) return;
+  const el = document.createElement("div");
+  el.className = `log-entry log-${type}`;
+  el.innerHTML = html;
+  log.appendChild(el);
+  log.scrollTop = log.scrollHeight;
+}
+
+function effectsToLogHtml(effects) {
+  return effects.filter(e => e.delta !== 0).map(e => {
+    const isPos = e.lowerIsBetter ? e.delta < 0 : e.delta > 0;
+    return `<span class="${isPos ? "log-eff-pos" : "log-eff-neg"}">${e.label}</span>`;
+  }).join(" ");
 }
 
 function updateTurnUI() {
@@ -241,6 +269,12 @@ document.getElementById("briefing-start-btn").addEventListener("click", () => {
 
   // Show first event after 5 seconds
   setTimeout(() => showEvent(firstEvent(playerName)), 5000);
+
+  // Reveal event log and log game start
+  document.getElementById("event-log").classList.remove("hidden");
+  addLogDayHeader(1, state.gameDate);
+  const genderLabel = gender === "female" ? "ראשת ממשלה" : "ראש ממשלה";
+  addLogEntry(`🏛️ <strong>${playerName}</strong> נכנס/ה לתפקיד כ${genderLabel} של ישראל`, "start");
 });
 
 const ARROW_SITES = [
@@ -621,6 +655,8 @@ function buildActionPopup(categoryName, cat) {
       updateResourcesUI();
       popup.classList.remove("visible");
       checkGameOver();
+      const effHtml = effectsToLogHtml(effects);
+      addLogEntry(`<strong>[${name}]</strong> ${choice.title}${effHtml ? "<br>" + effHtml : ""}`, "action");
     });
 
     popup.appendChild(item);
@@ -718,6 +754,7 @@ function showEvent(event) {
       updateResourcesUI();
       overlay.classList.add("hidden");
       checkGameOver();
+      addLogEntry(`⚔️ <strong>מכת פתיחה:</strong> ${choice.title}<br>${effectsToLogHtml(choice.effects)}`, "action");
     });
 
     choicesEl.appendChild(btn);
@@ -972,6 +1009,7 @@ function launchWaveStrike(waves, jetsPerWave, minPerJet, maxPerJet, waveDelay = 
 }
 
 function launchMissile() {
+  state.turnMissiles.fired++;
   const iranRect  = document.getElementById("iran-map").getBoundingClientRect();
   const israelRect = document.getElementById("israel-map").getBoundingClientRect();
 
@@ -1162,6 +1200,7 @@ function launchMissile() {
       showExplosion(impactX, impactY);
       state.money = Math.max(0, state.money - 1000);
       showFloat("-$1,000", false, "val-money");
+      state.turnMissiles.intercepted++;
       updateResourcesUI();
       cleanup();
       checkGameOver();
@@ -1192,6 +1231,7 @@ function launchMissile() {
       showExplosion(ex, ey);
       cleanup();
       if (isLandHit(ex, ey)) {
+        state.turnMissiles.hit++;
         const secDmg  = Math.floor(Math.random() * 11);   // 0–10
         const legGain = Math.floor(Math.random() * 6);    // 0–5
         state.security   = Math.max(0,   state.security   - secDmg);
@@ -1334,8 +1374,20 @@ function startNextTurnCooldown() {
 
 nextTurnBtn.addEventListener("click", () => {
   if (state.turn >= 30) return;
+
+  // Log missile summary for the day that just ended
+  const ms = state.turnMissiles;
+  if (ms.fired > 0) {
+    const missed = ms.fired - ms.intercepted - ms.hit;
+    addLogEntry(`🚀 איראן שיגרה ${ms.fired} טילים — יורטו ${ms.intercepted}, פגעו ${ms.hit}${missed > 0 ? ", החטיאו " + missed : ""}`, "missile");
+  } else {
+    addLogEntry("🕊️ יום שקט — ללא מתקפות", "quiet");
+  }
+  state.turnMissiles = { fired: 0, intercepted: 0, hit: 0 };
+
   state.turn += 1;
   state.gameDate = new Date(state.gameDate.getTime() + 86400000);
+  addLogDayHeader(state.turn, state.gameDate);
 
   // Nuclear +5%
   state.nuclear = Math.min(100, state.nuclear + 5);
