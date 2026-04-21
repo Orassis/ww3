@@ -491,9 +491,9 @@ function launchMissile() {
   const iranRect  = document.getElementById("iran-map").getBoundingClientRect();
   const israelRect = document.getElementById("israel-map").getBoundingClientRect();
 
-  // Start: random point inside Iran map
-  const sx = iranRect.left  + iranRect.width  * (0.25 + Math.random() * 0.5);
-  const sy = iranRect.top   + iranRect.height * (0.25 + Math.random() * 0.5);
+  // Start: random point on Iran landmass
+  const iranPt = randomPointOnMap("iran-map");
+  const sx = iranPt.x, sy = iranPt.y;
 
   // End: random point inside Israel map
   const ex = israelRect.left + israelRect.width  * (0.2 + Math.random() * 0.6);
@@ -719,6 +719,25 @@ function launchMissile() {
     requestAnimationFrame(animate);
   }
   requestAnimationFrame(animate);
+}
+
+function randomPointOnMap(mapId) {
+  const mapEl = document.getElementById(mapId);
+  const svg = mapEl.querySelector("svg");
+  if (!svg) return null;
+  const rect = mapEl.getBoundingClientRect();
+  const paths = svg.querySelectorAll(".country-shape");
+
+  for (let attempt = 0; attempt < 60; attempt++) {
+    const x = rect.left + rect.width  * (0.05 + Math.random() * 0.9);
+    const y = rect.top  + rect.height * (0.05 + Math.random() * 0.9);
+    const pt = svg.createSVGPoint();
+    pt.x = x; pt.y = y;
+    const svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
+    if (Array.from(paths).some(p => p.isPointInFill(svgPt))) return { x, y };
+  }
+  // fallback: center of map
+  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
 }
 
 function isLandHit(ex, ey) {
