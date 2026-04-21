@@ -325,6 +325,42 @@ nextTurnBtn.addEventListener("click", () => {
   if (state.turn >= 30) return;
   state.turn += 1;
   state.gameDate = new Date(state.gameDate.getTime() + 86400000);
+
+  // Nuclear +5%
+  state.nuclear = Math.min(100, state.nuclear + 5);
+
+  // Money +5000 with float animation
+  state.money += 5000;
+  updateResourcesUI();
+  showMoneyFloat("+$5,000");
+
   updateTurnUI();
   startNextTurnCooldown();
 });
+
+function showMoneyFloat(text) {
+  const ref = document.getElementById("val-money");
+  const rect = ref.getBoundingClientRect();
+  const el = document.createElement("div");
+  el.textContent = text;
+  el.style.cssText = `
+    position: fixed;
+    left: ${rect.left}px;
+    top: ${rect.top}px;
+    color: #3ae870;
+    font-size: 0.95rem;
+    font-weight: bold;
+    font-family: inherit;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 1.2s ease-out, opacity 1.2s ease-out;
+  `;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      el.style.transform = "translateY(-36px)";
+      el.style.opacity = "0";
+    });
+  });
+  setTimeout(() => el.remove(), 1300);
+}
