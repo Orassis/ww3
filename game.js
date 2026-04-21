@@ -724,96 +724,77 @@ function launchAirStrike(numJets, minTargets, maxTargets) {
   const jets = [];
   for (let i = 0; i < numJets; i++) { const j = createJetGroup(); svg.appendChild(j); jets.push(j); }
 
-  const P1 = 3000, P2_SEG = 600, P3 = 2800;
-  let cleaned = false;
+  const APPROACH = 3400, SEG = 600, RETURN = 3000;
+  let cleaned = false, doneCnt = 0;
   function cleanup() { if (cleaned) return; cleaned = true; jets.forEach(j => j.remove()); }
 
   function posJet(jet, x, y, dx, dy) {
     jet.setAttribute("transform", `translate(${x},${y}) rotate(${Math.atan2(dy, dx) * 180 / Math.PI})`);
   }
 
-  function animSeg(jet, fx, fy, tx, ty, dur, cb) {
-    // Curved bezier path: control point banked perpendicular to direction
-    const ddx = tx - fx, ddy = ty - fy;
-    const len = Math.hypot(ddx, ddy) || 1;
-    const bank = len * 0.25;
-    const cpx = (fx + tx) / 2 + (-ddy / len) * bank;
-    const cpy = (fy + ty) / 2 + ( ddx / len) * bank;
+  // Smooth bezier arc between two points with explicit control point
+  function animBez(jet, sx, sy, cpx, cpy, ex, ey, dur, cb) {
     const s = performance.now();
-    function easeInOut(t) { return t < 0.5 ? 2*t*t : -1 + (4-2*t)*t; }
     function frame(now) {
-      const raw = Math.min((now - s) / dur, 1);
-      const t = easeInOut(raw);
-      const x = bezierPoint(t, fx, cpx, tx);
-      const y = bezierPoint(t, fy, cpy, ty);
-      const dx = bezierTangentGlobal(t, fx, cpx, tx);
-      const dy = bezierTangentGlobal(t, fy, cpy, ty);
-      posJet(jet, x, y, dx, dy);
+      const t = Math.min((now - s) / dur, 1);
+      posJet(jet,
+        bezierPoint(t, sx, cpx, ex), bezierPoint(t, sy, cpy, ey),
+        bezierTangentGlobal(t, sx, cpx, ex), bezierTangentGlobal(t, sy, cpy, ey));
+      if (t < 1) requestAnimationFrame(frame); else cb?.();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // Banking curve between targets (perpendicular control point)
+  function animSeg(jet, fx, fy, tx, ty, dur, cb) {
+    const dx2 = tx-fx, dy2 = ty-fy, len = Math.hypot(dx2,dy2)||1;
+    const cpx = (fx+tx)/2 + (-dy2/len)*len*0.22;
+    const cpy = (fy+ty)/2 + ( dx2/len)*len*0.22;
+    function eio(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+    const s = performance.now();
+    function frame(now) {
+      const raw = Math.min((now - s) / dur, 1), t = eio(raw);
+      posJet(jet,
+        bezierPoint(t, fx, cpx, tx), bezierPoint(t, fy, cpy, ty),
+        bezierTangentGlobal(t, fx, cpx, tx), bezierTangentGlobal(t, fy, cpy, ty));
       if (raw < 1) requestAnimationFrame(frame); else cb?.();
     }
     requestAnimationFrame(frame);
   }
 
-  // Phase 1: Israel → Iran formation
-  const p1s = performance.now();
-  function phase1(now) {
-    const t = Math.min((now - p1s) / P1, 1);
-    jets.forEach((jet, i) => {
-      const off = (i - (numJets-1)/2) * SPREAD;
-      const sx = ox + perpX*off, sy = oy + perpY*off;
-      const ex = iran_cx + perpX*off, ey = iran_cy + perpY*off;
-      const cpx = (sx+ex)/2, cpy = (sy+ey)/2 - 60;
-      posJet(jet,
-        bezierPoint(t, sx, cpx, ex), bezierPoint(t, sy, cpy, ey),
-        bezierTangentGlobal(t, sx, cpx, ex), bezierTangentGlobal(t, sy, cpy, ey));
-    });
-    if (t < 1) requestAnimationFrame(phase1); else startPhase2();
-  }
-  requestAnimationFrame(phase1);
+  // Each jet: ONE continuous bezier Israel→(iran center as CP)→first target — zero stop
+  jets.forEach((jet, i) => {
+    const off = (i - (numJets-1)/2) * SPREAD;
+    const sx = ox + perpX*off, sy = oy + perpY*off;
+    const cpx = iran_cx + perpX*off, cpy = iran_cy + perpY*off;
+    const tgts = jetTargets[i] || [];
+    if (!tgts.length) { doneCnt++; return; }
 
-  // Phase 2: each jet bombs its targets then returns to rally
-  function startPhase2() {
-    const rally = jets.map((_, i) => {
-      const off = (i - (numJets-1)/2) * SPREAD;
-      return { x: iran_cx + perpX*off, y: iran_cy + perpY*off };
-    });
-    let doneCnt = 0;
-
-    jets.forEach((jet, ji) => {
-      const tgts = jetTargets[ji] || [];
-      const r = rally[ji];
-      function doTarget(ti, fx, fy) {
-        if (ti >= tgts.length) {
-          animSeg(jet, fx, fy, r.x, r.y, P2_SEG, () => { if (++doneCnt === numJets) startPhase3(rally); });
-          return;
-        }
-        const tgt = tgts[ti];
-        animSeg(jet, fx, fy, tgt.x, tgt.y, P2_SEG, () => { showMushroomCloud(tgt.x, tgt.y); doTarget(ti+1, tgt.x, tgt.y); });
+    function doNext(ti, fx, fy) {
+      if (ti >= tgts.length) {
+        // Return: bezier through iran_center back to Israel origin — also zero stop
+        animBez(jet, fx, fy, cpx, cpy, sx, sy, RETURN, () => {
+          if (++doneCnt >= numJets) cleanup();
+        });
+        return;
       }
-      setTimeout(() => doTarget(0, r.x, r.y), ji * 200);
-    });
-  }
-
-  // Phase 3: return to Israel
-  function startPhase3(rally) {
-    const p3s = performance.now();
-    function frame(now) {
-      const t = Math.min((now - p3s) / P3, 1);
-      jets.forEach((jet, i) => {
-        const r = rally[i];
-        const off = (i - (numJets-1)/2) * SPREAD;
-        const ex = ox + perpX*off, ey = oy + perpY*off;
-        const cpx = (r.x+ex)/2, cpy = (r.y+ey)/2 + 60;
-        posJet(jet,
-          bezierPoint(t, r.x, cpx, ex), bezierPoint(t, r.y, cpy, ey),
-          bezierTangentGlobal(t, r.x, cpx, ex), bezierTangentGlobal(t, r.y, cpy, ey));
+      const tgt = tgts[ti];
+      animSeg(jet, fx, fy, tgt.x, tgt.y, SEG, () => {
+        showMushroomCloud(tgt.x, tgt.y);
+        doNext(ti+1, tgt.x, tgt.y);
       });
-      if (t < 1) requestAnimationFrame(frame); else cleanup();
     }
-    requestAnimationFrame(frame);
-  }
 
-  const maxDur = P1 + (maxTargets + 2) * P2_SEG * 2 + numJets * 200 + P3 + 5000;
+    // Stagger jets slightly so they peel off in sequence, not in lockstep
+    setTimeout(() => {
+      animBez(jet, sx, sy, cpx, cpy, tgts[0].x, tgts[0].y, APPROACH, () => {
+        showMushroomCloud(tgts[0].x, tgts[0].y);
+        doNext(1, tgts[0].x, tgts[0].y);
+      });
+    }, i * 180);
+  });
+
+  const maxDur = APPROACH + (maxTargets+2)*SEG + numJets*180 + RETURN + 5000;
   setTimeout(cleanup, maxDur);
 }
 
