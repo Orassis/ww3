@@ -126,13 +126,14 @@ function updateConfirmBtn() {
 
 // ── Game state ──
 const state = {
-  money:       50000,
-  popularity:  65,
-  security:    70,
-  nuclear:     95,
-  legitimacy:  60,
-  turn:        1,
-  gameDate:    new Date(2026, 3, 21), // April 21 2026
+  money:         50000,
+  popularity:    65,
+  security:      70,
+  nuclear:       95,
+  legitimacy:    60,
+  turn:          1,
+  gameDate:      new Date(2026, 3, 21),
+  arrowBattery:  false,
 };
 
 function formatDate(d) {
@@ -185,12 +186,15 @@ document.getElementById("briefing-start-btn").addEventListener("click", () => {
   document.querySelector("h1").textContent = greeting;
   document.getElementById("subtitle").textContent = "ראש הממשלה של ישראל";
 
-  // Show resources bar, nuclear meter, and center column
+  // Show resources bar, nuclear meter, center column, arrow system
   document.getElementById("resources-bar").classList.remove("hidden");
   document.getElementById("nuclear-meter").classList.remove("hidden");
   document.getElementById("center-column").classList.remove("hidden");
+  document.getElementById("arrow-system").classList.add("visible");
+  document.getElementById("arrow-buy-btn").classList.remove("hidden");
   updateResourcesUI();
   updateTurnUI();
+  initArrowSystem();
 
   // Replace start button with action buttons
   const bar = document.getElementById("action-bar");
@@ -223,6 +227,32 @@ document.getElementById("briefing-start-btn").addEventListener("click", () => {
   // Show first event after 5 seconds
   setTimeout(() => showEvent(firstEvent(playerName)), 5000);
 });
+
+// ── Arrow battery ──
+function initArrowSystem() {
+  const btn     = document.getElementById("arrow-buy-btn");
+  const warning = document.getElementById("arrow-warning");
+  const popup   = document.getElementById("arrow-popup");
+
+  let hideTimer = null;
+  const show = () => { clearTimeout(hideTimer); popup.classList.add("visible"); };
+  const hide = () => { hideTimer = setTimeout(() => popup.classList.remove("visible"), 120); };
+  btn.addEventListener("mouseenter", show);
+  btn.addEventListener("mouseleave", hide);
+  popup.addEventListener("mouseenter", () => clearTimeout(hideTimer));
+  popup.addEventListener("mouseleave", hide);
+
+  btn.addEventListener("click", () => {
+    if (state.money < 40000) return;
+    state.money -= 40000;
+    state.arrowBattery = true;
+    btn.disabled = true;
+    popup.classList.remove("visible");
+    warning.classList.add("hidden");
+    showFloat("-$40,000", false, "val-money");
+    updateResourcesUI();
+  });
+}
 
 // ── Action categories ──
 const ACTION_CATEGORIES = {
@@ -548,10 +578,11 @@ function launchMissile() {
   missileG.appendChild(mExhaust);
   layer.appendChild(missileG);
 
-  // Intercept button
+  // Intercept button — only shown if Arrow battery is active
   const btn = document.createElement("button");
   btn.className = "intercept-btn";
   btn.textContent = "✈️ ירוט — $1,000";
+  if (!state.arrowBattery) btn.style.display = "none";
   document.body.appendChild(btn);
 
   let intercepted = false;

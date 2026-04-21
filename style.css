@@ -364,6 +364,65 @@ h1 {
   flex-shrink: 0;
 }
 
+/* ── Arrow battery system ── */
+#arrow-system {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #0a1625;
+  border: 1px solid #1e3a55;
+  border-radius: 6px;
+  direction: rtl;
+  flex-shrink: 0;
+}
+
+#arrow-system.visible { display: flex; }
+
+#arrow-warning {
+  font-size: 0.75rem;
+  color: #ffaa44;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+#arrow-warning.hidden { display: none; }
+
+#arrow-buy-btn {
+  padding: 5px 12px;
+  background: linear-gradient(135deg, #1a3a5a, #2a5a8a);
+  color: #aad4ff;
+  border: 1px solid #3a7aaa;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+#arrow-buy-btn:hover { background: linear-gradient(135deg, #22507a, #3a7ab0); }
+#arrow-buy-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.arrow-btn-wrap { position: relative; }
+
+.arrow-popup-desc {
+  font-size: 0.78rem;
+  color: #8899aa;
+  padding: 4px 6px 2px;
+  line-height: 1.5;
+}
+
+.arrow-popup-price {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #d4af37;
+  padding: 4px 6px 6px;
+}
+
 /* ── Nuclear meter (overlay inside Iran map) ── */
 .map-view { position: relative; }
 
