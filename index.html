@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>World War 3</title>
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
 </head>
@@ -12,7 +12,7 @@
   <div id="app">
     <header>
       <h1>World War 3</h1>
-      <p class="subtitle">סימולציית ניהול מלחמה</p>
+      <p class="subtitle" id="subtitle">סימולציית ניהול מלחמה</p>
     </header>
 
     <div id="maps-container">
@@ -35,6 +35,108 @@
 
     <div id="action-bar">
       <button id="start-btn">התחל משחק</button>
+    </div>
+  </div>
+
+  <!-- Character Selection Modal -->
+  <div id="modal-overlay" class="hidden">
+    <div id="modal">
+      <h2>יצירת דמות</h2>
+      <p class="modal-subtitle">בחר את ראש הממשלה שלך</p>
+
+      <div id="avatar-select">
+        <div class="avatar-card" data-gender="male">
+          <svg viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
+            <!-- Body / suit -->
+            <rect x="25" y="95" width="70" height="65" rx="6" fill="#1a2a4a"/>
+            <!-- Shirt -->
+            <rect x="50" y="95" width="20" height="40" fill="#f0f0f0"/>
+            <!-- Tie -->
+            <polygon points="60,100 56,118 60,128 64,118" fill="#c0001a"/>
+            <!-- Lapels -->
+            <polygon points="50,95 35,115 50,105" fill="#243560"/>
+            <polygon points="70,95 85,115 70,105" fill="#243560"/>
+            <!-- Neck -->
+            <rect x="52" y="82" width="16" height="16" rx="4" fill="#e8c49a"/>
+            <!-- Head -->
+            <ellipse cx="60" cy="68" rx="26" ry="28" fill="#e8c49a"/>
+            <!-- Hair (short, dark) -->
+            <ellipse cx="60" cy="44" rx="26" ry="14" fill="#2a1a0a"/>
+            <rect x="34" y="44" width="52" height="12" fill="#2a1a0a"/>
+            <!-- Eyes -->
+            <ellipse cx="51" cy="66" rx="4" ry="4.5" fill="white"/>
+            <ellipse cx="69" cy="66" rx="4" ry="4.5" fill="white"/>
+            <circle cx="52" cy="67" r="2.5" fill="#1a0a00"/>
+            <circle cx="70" cy="67" r="2.5" fill="#1a0a00"/>
+            <!-- Eyebrows -->
+            <path d="M47 60 Q51 57 55 60" stroke="#2a1a0a" stroke-width="2" fill="none"/>
+            <path d="M65 60 Q69 57 73 60" stroke="#2a1a0a" stroke-width="2" fill="none"/>
+            <!-- Nose -->
+            <ellipse cx="60" cy="74" rx="3" ry="2" fill="#d4a870"/>
+            <!-- Mouth -->
+            <path d="M53 81 Q60 86 67 81" stroke="#b07050" stroke-width="1.5" fill="none"/>
+            <!-- Ears -->
+            <ellipse cx="34" cy="68" rx="5" ry="7" fill="#e8c49a"/>
+            <ellipse cx="86" cy="68" rx="5" ry="7" fill="#e8c49a"/>
+            <!-- Buttons -->
+            <circle cx="60" cy="118" r="2" fill="#d0d0d0"/>
+            <circle cx="60" cy="128" r="2" fill="#d0d0d0"/>
+          </svg>
+          <span>גבר</span>
+        </div>
+
+        <div class="avatar-card" data-gender="female">
+          <svg viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
+            <!-- Body / blazer -->
+            <rect x="22" y="95" width="76" height="65" rx="6" fill="#5a1a3a"/>
+            <!-- Blouse -->
+            <rect x="48" y="95" width="24" height="38" rx="2" fill="#f8e8f0"/>
+            <!-- Lapels -->
+            <polygon points="48,95 30,120 48,108" fill="#6e2248"/>
+            <polygon points="72,95 90,120 72,108" fill="#6e2248"/>
+            <!-- Neck -->
+            <rect x="52" y="80" width="16" height="18" rx="4" fill="#f0c8a0"/>
+            <!-- Head -->
+            <ellipse cx="60" cy="64" rx="26" ry="27" fill="#f0c8a0"/>
+            <!-- Hair — long, flows over shoulders -->
+            <ellipse cx="60" cy="42" rx="27" ry="15" fill="#3a1a08"/>
+            <rect x="33" y="42" width="12" height="50" rx="6" fill="#3a1a08"/>
+            <rect x="75" y="42" width="12" height="50" rx="6" fill="#3a1a08"/>
+            <rect x="33" y="42" width="54" height="16" fill="#3a1a08"/>
+            <!-- Eyes -->
+            <ellipse cx="51" cy="63" rx="4.5" ry="4.5" fill="white"/>
+            <ellipse cx="69" cy="63" rx="4.5" ry="4.5" fill="white"/>
+            <circle cx="52" cy="64" r="2.5" fill="#1a0a00"/>
+            <circle cx="70" cy="64" r="2.5" fill="#1a0a00"/>
+            <!-- Lashes (top) -->
+            <path d="M47 59 Q51 56 55 59" stroke="#1a0a00" stroke-width="2.5" fill="none"/>
+            <path d="M65 59 Q69 56 73 59" stroke="#1a0a00" stroke-width="2.5" fill="none"/>
+            <!-- Eyebrows (arched) -->
+            <path d="M47 57 Q51 53 55 57" stroke="#3a1a08" stroke-width="1.8" fill="none"/>
+            <path d="M65 57 Q69 53 73 57" stroke="#3a1a08" stroke-width="1.8" fill="none"/>
+            <!-- Nose -->
+            <ellipse cx="60" cy="71" rx="3" ry="2" fill="#daa878"/>
+            <!-- Lips -->
+            <path d="M53 79 Q57 83 60 82 Q63 83 67 79" stroke="#c05070" stroke-width="1.5" fill="#e07090"/>
+            <!-- Ears -->
+            <ellipse cx="34" cy="65" rx="5" ry="7" fill="#f0c8a0"/>
+            <ellipse cx="86" cy="65" rx="5" ry="7" fill="#f0c8a0"/>
+            <!-- Earrings -->
+            <circle cx="34" cy="73" r="3" fill="#d4af37"/>
+            <circle cx="86" cy="73" r="3" fill="#d4af37"/>
+            <!-- Necklace -->
+            <path d="M50 100 Q60 108 70 100" stroke="#d4af37" stroke-width="1.5" fill="none"/>
+          </svg>
+          <span>אישה</span>
+        </div>
+      </div>
+
+      <div id="name-input-group">
+        <label for="player-name">שם ראש הממשלה</label>
+        <input type="text" id="player-name" placeholder="הכנס שם..." maxlength="30" autocomplete="off"/>
+      </div>
+
+      <button id="confirm-btn" disabled>התחל</button>
     </div>
   </div>
 

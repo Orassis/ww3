@@ -97,6 +97,52 @@ async function init() {
 
 init();
 
+// ── Modal logic ──
+const overlay     = document.getElementById("modal-overlay");
+const confirmBtn  = document.getElementById("confirm-btn");
+const nameInput   = document.getElementById("player-name");
+const avatarCards = document.querySelectorAll(".avatar-card");
+
+let selectedGender = null;
+
 document.getElementById("start-btn").addEventListener("click", () => {
-  alert("המשחק יתחיל בקרוב!");
+  overlay.classList.remove("hidden");
+});
+
+avatarCards.forEach(card => {
+  card.addEventListener("click", () => {
+    avatarCards.forEach(c => c.classList.remove("selected"));
+    card.classList.add("selected");
+    selectedGender = card.dataset.gender;
+    updateConfirmBtn();
+  });
+});
+
+nameInput.addEventListener("input", updateConfirmBtn);
+
+function updateConfirmBtn() {
+  confirmBtn.disabled = !(selectedGender && nameInput.value.trim().length > 0);
+}
+
+confirmBtn.addEventListener("click", () => {
+  const name   = nameInput.value.trim();
+  const gender = selectedGender;
+
+  overlay.classList.add("hidden");
+
+  // Update header
+  const greeting = gender === "female" ? `ברוכה הבאה, ${name}` : `ברוך הבא, ${name}`;
+  document.querySelector("h1").textContent = greeting;
+  document.getElementById("subtitle").textContent = "ראש הממשלה של ישראל";
+
+  // Replace start button with placeholder action buttons
+  const bar = document.getElementById("action-bar");
+  bar.innerHTML = `
+    <div id="game-actions">
+      <button class="action-btn">📋 מודיעין</button>
+      <button class="action-btn">⚔️ תקיפה</button>
+      <button class="action-btn">🛡️ הגנה</button>
+      <button class="action-btn">🤝 דיפלומטיה</button>
+    </div>
+  `;
 });
