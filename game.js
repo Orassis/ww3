@@ -152,8 +152,9 @@ confirmBtn.addEventListener("click", () => {
   document.querySelector("h1").textContent = greeting;
   document.getElementById("subtitle").textContent = "ראש הממשלה של ישראל";
 
-  // Show resources bar
+  // Show resources bar and nuclear meter
   document.getElementById("resources-bar").classList.remove("hidden");
+  document.getElementById("nuclear-meter").classList.remove("hidden");
   updateResourcesUI();
 
   // Replace start button with action buttons

@@ -363,23 +363,34 @@ h1 {
   flex-shrink: 0;
 }
 
-/* ── Nuclear meter ── */
+/* ── Nuclear meter (overlay inside Iran map) ── */
+.map-view { position: relative; }
+
 #nuclear-meter {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 24px);
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #0f1a10;
-  border: 1px solid #2a4a2a;
+  background: rgba(20, 5, 5, 0.82);
+  border: 1px solid #7a1a1a;
   border-radius: 6px;
   padding: 7px 12px;
   direction: rtl;
+  backdrop-filter: blur(2px);
+  z-index: 10;
 }
+
+#nuclear-meter.hidden { display: none; }
 
 .nuclear-icon { font-size: 1rem; }
 
 .nuclear-label {
   font-size: 0.75rem;
-  color: #7aaa6a;
+  color: #ff8888;
   letter-spacing: 1px;
   white-space: nowrap;
 }
@@ -394,7 +405,7 @@ h1 {
 .nuclear-bar {
   flex: 1;
   height: 6px;
-  background: #0a1a0a;
+  background: #2a0a0a;
   border-radius: 3px;
   overflow: hidden;
 }
@@ -402,14 +413,14 @@ h1 {
 .nuclear-fill {
   height: 100%;
   border-radius: 3px;
-  background: linear-gradient(90deg, #4aaa20, #aaee00);
+  background: linear-gradient(90deg, #aa2020, #ff4444);
   transition: width 0.6s ease;
 }
 
 .nuclear-pct {
   font-size: 0.85rem;
   font-weight: bold;
-  color: #aae060;
+  color: #ff6666;
   min-width: 36px;
 }
 
