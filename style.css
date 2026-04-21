@@ -346,7 +346,8 @@ h1 {
 }
 
 .popularity-bar .res-fill { background: linear-gradient(90deg, #1a7aaa, #3ab4e8); }
-.security-bar   .res-fill { background: linear-gradient(90deg, #1a7a3a, #3ae870); }
+.security-bar    .res-fill { background: linear-gradient(90deg, #1a7a3a, #3ae870); }
+.legitimacy-bar  .res-fill { background: linear-gradient(90deg, #5a1a8a, #aa44ee); }
 
 .res-pct {
   font-size: 0.85rem;

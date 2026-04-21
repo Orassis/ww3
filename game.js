@@ -126,10 +126,11 @@ function updateConfirmBtn() {
 
 // ── Game state ──
 const state = {
-  money:      50000,
-  popularity: 65,
-  security:   70,
-  nuclear:    95,
+  money:       50000,
+  popularity:  65,
+  security:    70,
+  nuclear:     95,
+  legitimacy:  60,
 };
 
 function updateResourcesUI() {
@@ -139,8 +140,10 @@ function updateResourcesUI() {
   document.getElementById("fill-popularity").style.width = state.popularity + "%";
   document.getElementById("val-security").textContent = state.security + "%";
   document.getElementById("fill-security").style.width   = state.security + "%";
-  document.getElementById("val-nuclear").textContent  = state.nuclear + "%";
-  document.getElementById("fill-nuclear").style.width = state.nuclear + "%";
+  document.getElementById("val-nuclear").textContent    = state.nuclear + "%";
+  document.getElementById("fill-nuclear").style.width   = state.nuclear + "%";
+  document.getElementById("val-legitimacy").textContent = state.legitimacy + "%";
+  document.getElementById("fill-legitimacy").style.width = state.legitimacy + "%";
 }
 
 confirmBtn.addEventListener("click", () => {
@@ -192,27 +195,30 @@ function firstEvent(playerName) {
         title: "⚔️ תקיפה רחבה",
         desc: "מכת פתיחה עוצמתית ברחבי איראן כנגד אתרי גרעין",
         effects: [
-          { label: "💰 עלות: $40,000",  key: "money",      delta: -40000 },
-          { label: "📣 פופולאריות: +15%", key: "popularity", delta: +15   },
-          { label: "☢️ גרעין: −60%",     key: "nuclear",    delta: -60   },
+          { label: "💰 עלות: $40,000",        key: "money",       delta: -40000 },
+          { label: "📣 פופולאריות: +15%",      key: "popularity",  delta: +15   },
+          { label: "☢️ גרעין: −60%",           key: "nuclear",     delta: -60,  lowerIsBetter: true },
+          { label: "🌐 לגיטימציה: −40%",       key: "legitimacy",  delta: -40   },
         ]
       },
       {
         title: "🎯 תקיפה ממוקדת",
         desc: "תקיפות ממוקדות בבסיסים איראניים",
         effects: [
-          { label: "💰 עלות: $25,000",   key: "money",      delta: -25000 },
-          { label: "📣 פופולאריות: +5%",  key: "popularity", delta: +5    },
-          { label: "☢️ גרעין: −30%",      key: "nuclear",    delta: -30   },
+          { label: "💰 עלות: $25,000",         key: "money",       delta: -25000 },
+          { label: "📣 פופולאריות: +5%",        key: "popularity",  delta: +5    },
+          { label: "☢️ גרעין: −30%",            key: "nuclear",     delta: -30,  lowerIsBetter: true },
+          { label: "🌐 לגיטימציה: −20%",        key: "legitimacy",  delta: -20   },
         ]
       },
       {
         title: "💻 תקיפות סייבר",
         desc: "תקיפות חשאיות בניסיון לצמצם את היכולות האיראניות",
         effects: [
-          { label: "💰 עלות: $10,000",    key: "money",      delta: -10000 },
-          { label: "📣 פופולאריות: ללא שינוי", key: "popularity", delta: 0 },
-          { label: "☢️ גרעין: −15%",       key: "nuclear",    delta: -15  },
+          { label: "💰 עלות: $10,000",          key: "money",       delta: -10000 },
+          { label: "📣 פופולאריות: ללא שינוי",  key: "popularity",  delta: 0     },
+          { label: "☢️ גרעין: −15%",             key: "nuclear",     delta: -15,  lowerIsBetter: true },
+          { label: "🌐 לגיטימציה: −5%",          key: "legitimacy",  delta: -5    },
         ]
       },
     ]
@@ -232,7 +238,10 @@ function showEvent(event) {
     btn.className = "choice-btn";
 
     const effectsHtml = choice.effects.map(e => {
-      const cls = e.delta < 0 ? "effect-neg" : e.delta > 0 ? "effect-pos" : "effect-neu";
+      let cls;
+      if (e.delta === 0)           cls = "effect-neu";
+      else if (e.lowerIsBetter)    cls = e.delta < 0 ? "effect-pos" : "effect-neg";
+      else                         cls = e.delta > 0 ? "effect-pos" : "effect-neg";
       return `<span class="${cls}">${e.label}</span>`;
     }).join("");
 
