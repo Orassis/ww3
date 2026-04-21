@@ -555,15 +555,21 @@ function launchMissile() {
   document.body.appendChild(btn);
 
   let intercepted = false;
+  let cleaned = false;
   const DURATION = 10000;
   const startTime = performance.now();
 
   function cleanup() {
+    if (cleaned) return;
+    cleaned = true;
     path.remove();
     ring.remove();
     missileG.remove();
     btn.remove();
   }
+
+  // Guaranteed cleanup even if rAF pauses (tab not focused)
+  setTimeout(cleanup, DURATION + 2000);
 
   function showExplosion(x, y) {
     const canvas = document.createElement("canvas");
@@ -576,21 +582,21 @@ function launchMissile() {
     const COLORS = ["#ffffff","#fff8a0","#ffdd00","#ffaa00","#ff6600","#ff3300","#cc1100"];
 
     const particles = [];
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < 40; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 1.5 + Math.random() * 9;
+      const speed = 1 + Math.random() * 5;
       particles.push({
         x, y,
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - Math.random() * 4,
-        size: 1.5 + Math.random() * 4.5,
+        vy: Math.sin(angle) * speed - Math.random() * 2,
+        size: 1 + Math.random() * 3,
         color: COLORS[Math.floor(Math.random() * COLORS.length)],
         life: 1.0,
-        decay: 0.018 + Math.random() * 0.028,
+        decay: 0.03 + Math.random() * 0.04,
       });
     }
 
-    let flashAlpha = 1.0;
+    let flashAlpha = 0.8;
     let shockR = 4;
 
     const removeCanvas = () => { if (canvas.parentNode) canvas.remove(); };
@@ -601,19 +607,19 @@ function launchMissile() {
       ctx.globalAlpha = 1;
 
       // Shockwave ring
-      if (shockR < 80) {
+      if (shockR < 45) {
         ctx.beginPath();
         ctx.arc(x, y, shockR, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(255,200,80,${Math.max(0, 0.7 - shockR / 80)})`;
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = `rgba(255,200,80,${Math.max(0, 0.7 - shockR / 45)})`;
+        ctx.lineWidth = 2;
         ctx.globalAlpha = 1;
         ctx.stroke();
-        shockR += 5;
+        shockR += 4;
       }
 
       // Flash
       if (flashAlpha > 0) {
-        const grad = ctx.createRadialGradient(x, y, 0, x, y, 36);
+        const grad = ctx.createRadialGradient(x, y, 0, x, y, 20);
         grad.addColorStop(0, `rgba(255,255,220,${flashAlpha})`);
         grad.addColorStop(1, `rgba(255,120,0,0)`);
         ctx.beginPath();
