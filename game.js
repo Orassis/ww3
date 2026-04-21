@@ -29,6 +29,8 @@ const CAPITALS = {
   iran:   { coords: [51.3890, 35.6892], name: "טהרן"    },
 };
 
+let israelProjection = null;
+
 function drawMap(containerId, features, capital) {
   const container = document.getElementById(containerId);
   const w = container.clientWidth  || 400;
@@ -47,6 +49,8 @@ function drawMap(containerId, features, capital) {
   const collection = { type: "FeatureCollection", features };
   const projection = d3.geoMercator()
     .fitExtent([[24, 24], [w - 24, h - 24]], collection);
+
+  if (containerId === "israel-map") israelProjection = projection;
 
   const path = d3.geoPath().projection(projection);
 
@@ -238,6 +242,44 @@ document.getElementById("briefing-start-btn").addEventListener("click", () => {
   setTimeout(() => showEvent(firstEvent(playerName)), 5000);
 });
 
+function showArrowBatteries() {
+  if (!israelProjection) return;
+  const svg = d3.select("#israel-map svg");
+  const sites = [
+    { coords: [35.08, 32.82], label: "צפון" },
+    { coords: [34.90, 32.08], label: "מרכז" },
+    { coords: [34.79, 31.25], label: "דרום"  },
+  ];
+  sites.forEach(({ coords, label }) => {
+    const [cx, cy] = israelProjection(coords);
+    const g = svg.append("g").attr("class", "arrow-battery-marker");
+    // Radar dish base
+    g.append("rect")
+      .attr("x", cx - 5).attr("y", cy - 2)
+      .attr("width", 10).attr("height", 5)
+      .attr("rx", 1).attr("fill", "#2a4a7a");
+    // Dish arc
+    g.append("path")
+      .attr("d", `M${cx-7},${cy-2} A7,7 0 0,1 ${cx+7},${cy-2}`)
+      .attr("fill", "none")
+      .attr("stroke", "#4a9ae8")
+      .attr("stroke-width", 2);
+    // Beam line
+    g.append("line")
+      .attr("x1", cx).attr("y1", cy - 9)
+      .attr("x2", cx).attr("y2", cy - 2)
+      .attr("stroke", "#4a9ae8").attr("stroke-width", 1.5);
+    // Label
+    g.append("text")
+      .attr("x", cx).attr("y", cy + 12)
+      .attr("text-anchor", "middle")
+      .attr("font-size", "7px")
+      .attr("fill", "#7ab8e8")
+      .attr("font-family", "inherit")
+      .text("🛡 " + label);
+  });
+}
+
 // ── Arrow battery ──
 function initArrowSystem() {
   const btn     = document.getElementById("arrow-buy-btn");
@@ -261,6 +303,7 @@ function initArrowSystem() {
     warning.classList.add("hidden");
     showFloat("-$40,000", false, "val-money");
     updateResourcesUI();
+    showArrowBatteries();
   });
 }
 
