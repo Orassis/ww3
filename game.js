@@ -139,7 +139,7 @@ const state = {
   gameDate:      new Date(2026, 3, 21),
   arrowBattery:      false,
   cooldowns:         {},
-  turnMissileStats:  { fired: 0, intercepted: 0, hit: 0 },
+  turnMissileStats:  { fired: 0, intercepted: 0, hit: 0, missed: 0 },
 };
 
 function formatDate(d) {
@@ -168,12 +168,11 @@ function updateMissileRow() {
   const log = document.getElementById("log-content");
   if (!log) return;
   const ms = state.turnMissileStats;
-  const missed = ms.fired - ms.intercepted - ms.hit;
   const html =
     `🚀 שוגרו: ${ms.fired}` +
     ` | יורטו: <span class="log-eff-pos">${ms.intercepted}</span>` +
     ` | פגעו: <span class="log-eff-neg">${ms.hit}</span>` +
-    (missed > 0 ? ` | פספסו: ${missed}` : "");
+    (ms.missed > 0 ? ` | פספסו: ${ms.missed}` : "");
   if (!currentMissileEl) {
     currentMissileEl = document.createElement("div");
     currentMissileEl.className = "log-entry log-missile";
@@ -1286,6 +1285,9 @@ function launchMissile() {
         ]);
         updateResourcesUI();
         checkGameOver();
+      } else {
+        state.turnMissileStats.missed++;
+        updateMissileRow();
       }
       return;
     }
@@ -1422,7 +1424,7 @@ nextTurnBtn.addEventListener("click", () => {
   if (state.turnMissileStats.fired === 0) {
     addLogEntry("🕊️ יום שקט — ללא מתקפות", "quiet");
   }
-  state.turnMissileStats = { fired: 0, intercepted: 0, hit: 0 };
+  state.turnMissileStats = { fired: 0, intercepted: 0, hit: 0, missed: 0 };
 
   state.turn += 1;
   state.gameDate = new Date(state.gameDate.getTime() + 86400000);
