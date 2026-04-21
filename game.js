@@ -574,87 +574,115 @@ function bezierTangentGlobal(t, p0, p1, p2) {
 // ── Air strike animation ──
 function createJetGroup() {
   const g = document.createElementNS(SVG_NS, "g");
+  // Swept delta wings
   const wings = document.createElementNS(SVG_NS, "polygon");
-  wings.setAttribute("points", "1,0 -2,-8 -7,-2 -7,2 -2,8");
-  wings.setAttribute("fill", "#8aafc8");
+  wings.setAttribute("points", "3,0 -1,-10 -8,-3 -8,3 -1,10");
+  wings.setAttribute("fill", "#3a3f42");
+  // Fuselage
   const body = document.createElementNS(SVG_NS, "polygon");
-  body.setAttribute("points", "10,0 -5,3.5 -3,0 -5,-3.5");
-  body.setAttribute("fill", "#c8ddf0");
+  body.setAttribute("points", "12,0 0,2.5 -2,0 0,-2.5");
+  body.setAttribute("fill", "#525c62");
+  // Tail fins
   const tail = document.createElementNS(SVG_NS, "polygon");
-  tail.setAttribute("points", "-4,0 -8,-5 -6,0 -8,5");
-  tail.setAttribute("fill", "#8aafc8");
-  const exhaust = document.createElementNS(SVG_NS, "circle");
-  exhaust.setAttribute("cx", "-6"); exhaust.setAttribute("cy", "0");
-  exhaust.setAttribute("r", "2.5"); exhaust.setAttribute("fill", "#ff7020");
-  g.appendChild(wings); g.appendChild(body); g.appendChild(tail); g.appendChild(exhaust);
+  tail.setAttribute("points", "-2,0 -7,-5 -9,-1 -9,1 -7,5");
+  tail.setAttribute("fill", "#3a3f42");
+  // Canopy highlight
+  const canopy = document.createElementNS(SVG_NS, "ellipse");
+  canopy.setAttribute("cx", "5"); canopy.setAttribute("cy", "0");
+  canopy.setAttribute("rx", "3"); canopy.setAttribute("ry", "1.2");
+  canopy.setAttribute("fill", "#7ab0cc");
+  canopy.setAttribute("opacity", "0.7");
+  // Engine afterburner
+  const exhaust = document.createElementNS(SVG_NS, "ellipse");
+  exhaust.setAttribute("cx", "-10"); exhaust.setAttribute("cy", "0");
+  exhaust.setAttribute("rx", "3"); exhaust.setAttribute("ry", "1.5");
+  exhaust.setAttribute("fill", "#ff6010");
+  g.appendChild(wings); g.appendChild(body); g.appendChild(tail);
+  g.appendChild(canopy); g.appendChild(exhaust);
   return g;
 }
 
 function showMushroomCloud(cx, cy) {
-  const W = 80, H = 110;
+  const W = 90, H = 120;
   const canvas = document.createElement("canvas");
   canvas.width = W; canvas.height = H;
-  canvas.style.cssText = `position:fixed;left:${cx - W/2}px;top:${cy - H + 10}px;pointer-events:none;z-index:450`;
+  canvas.style.cssText = `position:fixed;left:${cx - W/2}px;top:${cy - H + 12}px;pointer-events:none;z-index:450`;
   document.body.appendChild(canvas);
   const ctx = canvas.getContext("2d");
-  const t0 = performance.now(), DUR = 3500;
+  const t0 = performance.now(), DUR = 4000;
   let done = false;
+
+  // Billowing cloud bubble helper
+  function cloudBubble(x, y, r, inner, outer, alpha) {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0,   `rgba(${inner},${alpha})`);
+    g.addColorStop(0.5, `rgba(${outer},${alpha * 0.7})`);
+    g.addColorStop(1,   `rgba(${outer},0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+  }
 
   function frame(now) {
     const t = Math.min((now - t0) / DUR, 1);
     ctx.clearRect(0, 0, W, H);
-    const bx = W / 2, by = H - 8;
+    const bx = W / 2, by = H - 6;
 
-    // Ground flash
-    if (t < 0.18) {
-      const ft = t / 0.18, r = ft * 22;
-      const gf = ctx.createRadialGradient(bx, by, 0, bx, by, r);
-      gf.addColorStop(0, `rgba(255,255,180,${0.95*(1-ft)})`);
-      gf.addColorStop(0.5, `rgba(255,140,0,${0.8*(1-ft)})`);
-      gf.addColorStop(1, "rgba(200,60,0,0)");
-      ctx.fillStyle = gf;
-      ctx.beginPath(); ctx.arc(bx, by, r, 0, Math.PI*2); ctx.fill();
-    }
-
-    // Stem
-    const stemT = Math.min(t * 3, 1);
-    const sH = stemT * H * 0.55, sTopY = by - sH, sW = 5 + stemT * 5;
-    const alph = Math.max(0, 0.8 - t * 0.4);
-    const sg = ctx.createLinearGradient(0, sTopY, 0, by);
-    sg.addColorStop(0, `rgba(110,80,55,${alph})`);
-    sg.addColorStop(0.5, `rgba(175,110,55,${alph})`);
-    sg.addColorStop(1, `rgba(220,140,60,${alph * 0.8})`);
-    ctx.fillStyle = sg;
-    ctx.fillRect(bx - sW/2, sTopY, sW, sH);
-
-    // Base fireball
-    const fbT = Math.max(0, 1 - t * 1.4);
-    if (fbT > 0) {
-      const fbr = 8 + stemT * 10;
-      const fg = ctx.createRadialGradient(bx, by-6, 0, bx, by-6, fbr);
-      fg.addColorStop(0, `rgba(255,250,120,${fbT*0.9})`);
-      fg.addColorStop(0.4, `rgba(255,150,0,${fbT*0.8})`);
-      fg.addColorStop(1, "rgba(200,50,0,0)");
-      ctx.fillStyle = fg;
-      ctx.beginPath(); ctx.arc(bx, by-6, fbr, 0, Math.PI*2); ctx.fill();
-    }
-
-    // Mushroom cap
-    const capT = Math.max(0, Math.min((t - 0.08) * 2.2, 1));
-    const capY = sTopY, capW = capT * W * 0.44, capH2 = capW * 0.42;
-    if (capW > 3) {
-      const a2 = Math.max(0, 0.85 - t * 0.4);
-      const cg = ctx.createRadialGradient(bx, capY - capH2*0.4, 2, bx, capY, capW);
-      cg.addColorStop(0, `rgba(240,160,60,${a2})`);
-      cg.addColorStop(0.45, `rgba(160,95,45,${a2*0.9})`);
-      cg.addColorStop(1, `rgba(70,55,50,${a2*0.7})`);
-      ctx.fillStyle = cg;
+    // 1. Ground shockwave ring
+    if (t < 0.25) {
+      const rt = t / 0.25;
+      ctx.strokeStyle = `rgba(255,180,60,${0.7 * (1 - rt)})`;
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.ellipse(bx, capY, capW, capH2, 0, Math.PI, 0, true);
-      ctx.lineTo(bx + capW * 0.55, capY + capH2 * 0.6);
-      ctx.quadraticCurveTo(bx, capY + capH2, bx - capW * 0.55, capY + capH2 * 0.6);
-      ctx.closePath();
-      ctx.fill();
+      ctx.ellipse(bx, by, rt * 30, rt * 6, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // 2. Stem — widens at base, narrows then widens at cap
+    const stemT = Math.min(t * 2.5, 1);
+    const sH = stemT * H * 0.58;
+    const sTopY = by - sH;
+    const stemAlpha = Math.max(0, 0.75 - t * 0.35);
+    for (let sy = by; sy > sTopY; sy -= 3) {
+      const frac = (by - sy) / sH;
+      // waist shape: wide at bottom, narrow in middle, wide at top
+      const waist = 1 - Math.sin(frac * Math.PI) * 0.55;
+      const sw = (4 + stemT * 6) * waist;
+      const heat = 1 - frac;
+      const r2 = Math.round(180 + heat * 60);
+      const g2 = Math.round(90 + heat * 50);
+      ctx.fillStyle = `rgba(${r2},${g2},50,${stemAlpha * (0.5 + heat * 0.5)})`;
+      ctx.fillRect(bx - sw/2, sy - 3, sw, 4);
+    }
+
+    // 3. Base fireball
+    const fbT = Math.max(0, 1 - t * 1.6);
+    if (fbT > 0) {
+      cloudBubble(bx, by - 4, 14 + stemT * 8, "255,240,100", "255,110,0", fbT * 0.9);
+      cloudBubble(bx - 6, by - 2, 9, "255,200,60", "220,80,0", fbT * 0.7);
+      cloudBubble(bx + 7, by - 3, 8, "255,220,80", "200,70,0", fbT * 0.65);
+    }
+
+    // 4. Mushroom cap — billowing bubbles
+    const capT = Math.max(0, Math.min((t - 0.1) * 1.8, 1));
+    const capY = sTopY;
+    const capR = capT * W * 0.38;
+    if (capR > 4) {
+      const ca = Math.max(0, 0.82 - t * 0.38);
+      // dark outer smoke ring
+      cloudBubble(bx,      capY,       capR,       "90,65,50",  "60,45,40",  ca * 0.9);
+      cloudBubble(bx - capR*0.55, capY + capR*0.1, capR*0.65, "100,70,50", "65,48,40", ca * 0.8);
+      cloudBubble(bx + capR*0.55, capY + capR*0.1, capR*0.65, "100,70,50", "65,48,40", ca * 0.8);
+      cloudBubble(bx - capR*0.3,  capY - capR*0.3, capR*0.6,  "150,90,50", "90,60,40", ca * 0.85);
+      cloudBubble(bx + capR*0.3,  capY - capR*0.3, capR*0.6,  "150,90,50", "90,60,40", ca * 0.85);
+      // inner fire core
+      const fireT = Math.max(0, 1 - t * 1.3);
+      if (fireT > 0) {
+        cloudBubble(bx, capY + capR*0.15, capR*0.45, "255,160,40", "200,90,20", fireT * ca);
+      }
+      // top crown puffs
+      cloudBubble(bx,           capY - capR*0.45, capR*0.5,  "75,58,48", "55,42,38", ca * 0.7);
+      cloudBubble(bx - capR*0.4, capY - capR*0.2,  capR*0.42, "80,62,50", "58,45,40", ca * 0.65);
+      cloudBubble(bx + capR*0.4, capY - capR*0.2,  capR*0.42, "80,62,50", "58,45,40", ca * 0.65);
     }
 
     if (t < 1) requestAnimationFrame(frame);
