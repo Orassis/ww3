@@ -374,6 +374,7 @@ function buildActionPopup(categoryName, cat) {
           state[e.key] + e.delta
         ));
       });
+      showEffectFloats(choice.effects);
       updateResourcesUI();
       popup.classList.remove("visible");
       checkGameOver();
@@ -466,6 +467,7 @@ function showEvent(event) {
           state[e.key] + e.delta
         ));
       });
+      showEffectFloats(choice.effects);
       updateResourcesUI();
       overlay.classList.add("hidden");
       checkGameOver();
@@ -564,8 +566,17 @@ nextTurnBtn.addEventListener("click", () => {
   if (state.turn < 30 && state.nuclear < 100) startNextTurnCooldown();
 });
 
-function showMoneyFloat(text) {
-  const ref = document.getElementById("val-money");
+const EFFECT_ANCHOR = {
+  money:      "val-money",
+  popularity: "val-popularity",
+  security:   "val-security",
+  legitimacy: "val-legitimacy",
+  nuclear:    "val-nuclear",
+};
+
+function showFloat(text, isPositive, anchorId) {
+  const ref = document.getElementById(anchorId);
+  if (!ref) return;
   const rect = ref.getBoundingClientRect();
   const el = document.createElement("div");
   el.textContent = text;
@@ -573,13 +584,14 @@ function showMoneyFloat(text) {
     position: fixed;
     left: ${rect.left}px;
     top: ${rect.top}px;
-    color: #3ae870;
-    font-size: 0.95rem;
+    color: ${isPositive ? "#3ae870" : "#ff5555"};
+    font-size: 0.9rem;
     font-weight: bold;
     font-family: inherit;
     pointer-events: none;
     z-index: 9999;
     transition: transform 1.2s ease-out, opacity 1.2s ease-out;
+    white-space: nowrap;
   `;
   document.body.appendChild(el);
   requestAnimationFrame(() => {
@@ -589,4 +601,22 @@ function showMoneyFloat(text) {
     });
   });
   setTimeout(() => el.remove(), 1300);
+}
+
+function showMoneyFloat(text) {
+  showFloat(text, true, "val-money");
+}
+
+function showEffectFloats(effects) {
+  effects.forEach(e => {
+    if (e.delta === 0) return;
+    const anchor = EFFECT_ANCHOR[e.key];
+    if (!anchor) return;
+    const isPositive = e.lowerIsBetter ? e.delta < 0 : e.delta > 0;
+    const sign = e.delta > 0 ? "+" : "";
+    const label = e.key === "money"
+      ? `${e.delta > 0 ? "+" : ""}$${Math.abs(e.delta).toLocaleString("en-US")}`
+      : `${sign}${e.delta}%`;
+    showFloat(label, isPositive, anchor);
+  });
 }
