@@ -301,7 +301,7 @@ function launchInterceptor(targetX, targetY, onImpact) {
   g.appendChild(exhaust); g.appendChild(exhaustInner);
   layer.appendChild(g);
 
-  const DUR = 650;
+  const DUR = 320;
   const t0 = performance.now();
   const angle = Math.atan2(targetY - origin.y, targetX - origin.x) * 180 / Math.PI;
 
