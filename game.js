@@ -286,30 +286,48 @@ const ACTION_CATEGORIES = {
     icon: "⚔️",
     choices: [
       {
-        title: "תקיפה אווירית",
-        effects: [
-          { label: "☢️ גרעין: −25%",   key: "nuclear",     delta: -25,    lowerIsBetter: true },
+        title: "תקיפה אווירית רחבה",
+        successChance: 70,
+        onSuccess: [
+          { label: "☢️ גרעין: −25%",     key: "nuclear",    delta: -25,    lowerIsBetter: true },
           { label: "📣 פופולאריות: +10%", key: "popularity", delta: +10   },
           { label: "🌐 לגיטימציה: −20%", key: "legitimacy", delta: -20   },
-          { label: "💰 עלות: $35,000",  key: "money",       delta: -35000 },
+          { label: "💰 עלות: $35,000",   key: "money",      delta: -35000 },
+        ],
+        onFail: [
+          { label: "☢️ גרעין: ללא שינוי",  key: "nuclear",    delta: 0     },
+          { label: "📣 פופולאריות: −10%",  key: "popularity", delta: -10   },
+          { label: "🌐 לגיטימציה: −5%",   key: "legitimacy", delta: -5    },
+          { label: "💰 עלות: $35,000",    key: "money",      delta: -35000 },
         ]
       },
       {
-        title: "מתקפת סייבר",
-        effects: [
-          { label: "☢️ גרעין: −12%",   key: "nuclear",     delta: -12,    lowerIsBetter: true },
-          { label: "🌐 לגיטימציה: −5%", key: "legitimacy",  delta: -5    },
-          { label: "💰 עלות: $12,000",  key: "money",       delta: -12000 },
-        ]
-      },
-      {
-        title: "פעולת קומנדו",
-        effects: [
-          { label: "☢️ גרעין: −18%",   key: "nuclear",     delta: -18,    lowerIsBetter: true },
-          { label: "🛡️ ביטחון: +8%",   key: "security",    delta: +8     },
+        title: "חיסול ממוקד",
+        successChance: 90,
+        onSuccess: [
+          { label: "💰 עלות: $12,000",   key: "money",      delta: -12000 },
+          { label: "📣 פופולאריות: +5%", key: "popularity", delta: +5    },
+          { label: "🛡️ ביטחון: +10%",   key: "security",   delta: +10   },
+          { label: "☢️ גרעין: −15%",    key: "nuclear",    delta: -15,   lowerIsBetter: true },
           { label: "🌐 לגיטימציה: −10%", key: "legitimacy", delta: -10   },
-          { label: "💰 עלות: $22,000",  key: "money",       delta: -22000 },
+        ],
+        onFail: [
+          { label: "💰 עלות: $12,000",      key: "money",      delta: -12000 },
+          { label: "📣 פופולאריות: −5%",    key: "popularity", delta: -5    },
+          { label: "🛡️ ביטחון: ללא שינוי", key: "security",   delta: 0     },
+          { label: "☢️ גרעין: ללא שינוי",  key: "nuclear",    delta: 0     },
+          { label: "🌐 לגיטימציה: −5%",    key: "legitimacy", delta: -5    },
         ]
+      },
+      {
+        title: "טיל יריחו",
+        successChance: 100,
+        onSuccess: [
+          { label: "☢️ גרעין: −10%",    key: "nuclear",    delta: -10,   lowerIsBetter: true },
+          { label: "🌐 לגיטימציה: −10%", key: "legitimacy", delta: -10   },
+          { label: "🛡️ ביטחון: +15%",   key: "security",   delta: +15   },
+        ],
+        onFail: []
       },
     ]
   },
@@ -382,27 +400,59 @@ function buildActionPopup(categoryName, cat) {
     const item = document.createElement("button");
     item.className = "action-popup-item";
 
-    const effectsHtml = choice.effects.map(e => {
-      let cls;
-      if (e.delta === 0)        cls = "effect-neu";
-      else if (e.lowerIsBetter) cls = e.delta < 0 ? "effect-pos" : "effect-neg";
-      else                      cls = e.delta > 0 ? "effect-pos" : "effect-neg";
-      return `<span class="${cls}">${e.label}</span>`;
-    }).join("");
+    const hasChance = choice.successChance != null;
 
-    item.innerHTML = `
-      <span class="popup-choice-title">${choice.title}</span>
-      <div class="popup-choice-effects">${effectsHtml}</div>
-    `;
+    function effectsHtml(effects) {
+      return effects.map(e => {
+        let cls;
+        if (e.delta === 0)        cls = "effect-neu";
+        else if (e.lowerIsBetter) cls = e.delta < 0 ? "effect-pos" : "effect-neg";
+        else                      cls = e.delta > 0 ? "effect-pos" : "effect-neg";
+        return `<span class="${cls}">${e.label}</span>`;
+      }).join("");
+    }
+
+    if (hasChance) {
+      const chanceColor = choice.successChance === 100 ? "#4caf50" : choice.successChance >= 80 ? "#8bc34a" : "#ff9800";
+      item.innerHTML = `
+        <div class="popup-choice-header">
+          <span class="popup-choice-title">${choice.title}</span>
+          <span class="popup-chance" style="color:${chanceColor}">✦ ${choice.successChance}% הצלחה</span>
+        </div>
+        <div class="popup-chance-cols">
+          <div class="popup-chance-col">
+            <div class="popup-chance-label success-label">✅ הצלחה</div>
+            <div class="popup-choice-effects">${effectsHtml(choice.onSuccess)}</div>
+          </div>
+          ${choice.onFail.length ? `<div class="popup-chance-col">
+            <div class="popup-chance-label fail-label">❌ כישלון</div>
+            <div class="popup-choice-effects">${effectsHtml(choice.onFail)}</div>
+          </div>` : ""}
+        </div>
+      `;
+    } else {
+      item.innerHTML = `
+        <span class="popup-choice-title">${choice.title}</span>
+        <div class="popup-choice-effects">${effectsHtml(choice.effects)}</div>
+      `;
+    }
 
     item.addEventListener("click", () => {
-      choice.effects.forEach(e => {
+      let effects;
+      if (hasChance) {
+        const success = Math.random() * 100 < choice.successChance;
+        effects = success ? choice.onSuccess : choice.onFail;
+      } else {
+        effects = choice.effects;
+      }
+      effects.forEach(e => {
+        if (e.delta === 0) return;
         state[e.key] = Math.max(0, Math.min(
           e.key === "money" ? Infinity : 100,
           state[e.key] + e.delta
         ));
       });
-      showEffectFloats(choice.effects);
+      showEffectFloats(effects);
       updateResourcesUI();
       popup.classList.remove("visible");
       checkGameOver();
