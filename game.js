@@ -610,11 +610,12 @@ function isLandHit(ex, ey) {
 }
 
 function scheduleRandomAttack() {
-  const delay = 3000 + Math.random() * 7000; // 3–10s
-  setTimeout(() => {
-    const count = Math.floor(Math.random() * 6); // 0–5
-    for (let i = 0; i < count; i++) launchMissile();
-  }, delay);
+  const baseDelay = 3000 + Math.random() * 7000; // 3–10s
+  const count = Math.floor(Math.random() * 6);   // 0–5
+  for (let i = 0; i < count; i++) {
+    const stagger = i * (200 + Math.random() * 400); // 200–600ms between each
+    setTimeout(launchMissile, baseDelay + stagger);
+  }
 }
 
 // ── Game Over ──
