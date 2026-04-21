@@ -723,21 +723,35 @@ function launchMissile() {
 
 function randomPointOnMap(mapId) {
   const mapEl = document.getElementById(mapId);
-  const svg = mapEl.querySelector("svg");
+  const svg   = mapEl.querySelector("svg");
   if (!svg) return null;
-  const rect = mapEl.getBoundingClientRect();
-  const paths = svg.querySelectorAll(".country-shape");
 
-  for (let attempt = 0; attempt < 60; attempt++) {
-    const x = rect.left + rect.width  * (0.05 + Math.random() * 0.9);
-    const y = rect.top  + rect.height * (0.05 + Math.random() * 0.9);
-    const pt = svg.createSVGPoint();
-    pt.x = x; pt.y = y;
-    const svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
-    if (Array.from(paths).some(p => p.isPointInFill(svgPt))) return { x, y };
+  const paths = Array.from(svg.querySelectorAll(".country-shape"));
+  if (!paths.length) return null;
+
+  const ctm = svg.getScreenCTM();
+
+  // Work entirely in SVG coordinate space — getBBox() is accurate here
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  paths.forEach(p => {
+    const bb = p.getBBox();
+    minX = Math.min(minX, bb.x);         minY = Math.min(minY, bb.y);
+    maxX = Math.max(maxX, bb.x + bb.width); maxY = Math.max(maxY, bb.y + bb.height);
+  });
+
+  const pt = svg.createSVGPoint();
+  for (let i = 0; i < 120; i++) {
+    pt.x = minX + Math.random() * (maxX - minX);
+    pt.y = minY + Math.random() * (maxY - minY);
+    if (paths.some(p => p.isPointInFill(pt))) {
+      const vp = pt.matrixTransform(ctm);
+      return { x: vp.x, y: vp.y };
+    }
   }
-  // fallback: center of map
-  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  // fallback: centroid of bounding box
+  pt.x = (minX + maxX) / 2; pt.y = (minY + maxY) / 2;
+  const vp = pt.matrixTransform(ctm);
+  return { x: vp.x, y: vp.y };
 }
 
 function isLandHit(ex, ey) {
