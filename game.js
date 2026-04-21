@@ -483,6 +483,7 @@ function firstEvent(playerName) {
       {
         title: "⚔️ תקיפה רחבה",
         desc: "מכת פתיחה עוצמתית ברחבי איראן כנגד אתרי גרעין",
+        animation: "waveStrike",
         effects: [
           { label: "💰 עלות: $40,000",        key: "money",       delta: -40000 },
           { label: "📣 פופולאריות: +15%",      key: "popularity",  delta: +15   },
@@ -493,6 +494,7 @@ function firstEvent(playerName) {
       {
         title: "🎯 תקיפה ממוקדת",
         desc: "תקיפות ממוקדות בבסיסים איראניים",
+        animation: "wideStrike",
         effects: [
           { label: "💰 עלות: $25,000",         key: "money",       delta: -25000 },
           { label: "📣 פופולאריות: +5%",        key: "popularity",  delta: +5    },
@@ -547,6 +549,8 @@ function showEvent(event) {
           state[e.key] + e.delta
         ));
       });
+      if (choice.animation === "waveStrike") launchWaveStrike(3, 5, 1, 3);
+      if (choice.animation === "wideStrike") launchAirStrike(5, 5, 15);
       showEffectFloats(choice.effects);
       updateResourcesUI();
       overlay.classList.add("hidden");
@@ -796,6 +800,12 @@ function launchAirStrike(numJets, minTargets, maxTargets) {
 
   const maxDur = APPROACH + (maxTargets+2)*SEG + numJets*180 + RETURN + 5000;
   setTimeout(cleanup, maxDur);
+}
+
+function launchWaveStrike(waves, jetsPerWave, minPerJet, maxPerJet, waveDelay = 2500) {
+  for (let w = 0; w < waves; w++) {
+    setTimeout(() => launchAirStrike(jetsPerWave, minPerJet * jetsPerWave, maxPerJet * jetsPerWave), w * waveDelay);
+  }
 }
 
 function launchMissile() {
