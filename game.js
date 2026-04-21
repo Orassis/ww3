@@ -276,18 +276,29 @@ function launchInterceptor(targetX, targetY, onImpact) {
   const layer = document.getElementById("missile-layer");
   const g = document.createElementNS(SVG_NS, "g");
 
-  // Interceptor shape — slim blue/white missile
+  // Interceptor — larger, bright blue/white with glow
+  const glow = document.createElementNS(SVG_NS, "ellipse");
+  glow.setAttribute("cx", "0"); glow.setAttribute("cy", "0");
+  glow.setAttribute("rx", "16"); glow.setAttribute("ry", "6");
+  glow.setAttribute("fill", "rgba(100,200,255,0.18)");
   const body = document.createElementNS(SVG_NS, "polygon");
-  body.setAttribute("points", "9,0 -4,2.5 -2,0 -4,-2.5");
-  body.setAttribute("fill", "#88ddff");
+  body.setAttribute("points", "14,0 -6,4 -3,0 -6,-4");
+  body.setAttribute("fill", "#ccf0ff");
+  body.setAttribute("stroke", "#44bbff");
+  body.setAttribute("stroke-width", "0.8");
   const fin = document.createElementNS(SVG_NS, "polygon");
-  fin.setAttribute("points", "-2,0 -6,-4 -4,0 -6,4");
-  fin.setAttribute("fill", "#55aadd");
+  fin.setAttribute("points", "-3,0 -9,-6 -6,0 -9,6");
+  fin.setAttribute("fill", "#44aaee");
   const exhaust = document.createElementNS(SVG_NS, "ellipse");
-  exhaust.setAttribute("cx", "-5"); exhaust.setAttribute("cy", "0");
-  exhaust.setAttribute("rx", "3"); exhaust.setAttribute("ry", "1.5");
-  exhaust.setAttribute("fill", "#ff9930");
-  g.appendChild(fin); g.appendChild(body); g.appendChild(exhaust);
+  exhaust.setAttribute("cx", "-8"); exhaust.setAttribute("cy", "0");
+  exhaust.setAttribute("rx", "5"); exhaust.setAttribute("ry", "2.5");
+  exhaust.setAttribute("fill", "#ffaa30");
+  const exhaustInner = document.createElementNS(SVG_NS, "ellipse");
+  exhaustInner.setAttribute("cx", "-8"); exhaustInner.setAttribute("cy", "0");
+  exhaustInner.setAttribute("rx", "2.5"); exhaustInner.setAttribute("ry", "1.2");
+  exhaustInner.setAttribute("fill", "#ffffff");
+  g.appendChild(glow); g.appendChild(fin); g.appendChild(body);
+  g.appendChild(exhaust); g.appendChild(exhaustInner);
   layer.appendChild(g);
 
   const DUR = 650;
