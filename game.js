@@ -519,11 +519,34 @@ function launchMissile() {
   ring.setAttribute("class", "impact-ring");
   layer.appendChild(ring);
 
-  // Missile dot
-  const dot = document.createElementNS(SVG_NS, "circle");
-  dot.setAttribute("r", "7");
-  dot.setAttribute("class", "missile-dot");
-  layer.appendChild(dot);
+  // Missile shape (points right by default, rotated by travel angle)
+  const missileG = document.createElementNS(SVG_NS, "g");
+
+  const mBody = document.createElementNS(SVG_NS, "path");
+  mBody.setAttribute("d", "M -11,2.5 L 7,2.5 L 13,0 L 7,-2.5 L -11,-2.5 Z");
+  mBody.setAttribute("fill", "#c8c8c8");
+  mBody.setAttribute("stroke", "#808080");
+  mBody.setAttribute("stroke-width", "0.5");
+
+  const mFinTop = document.createElementNS(SVG_NS, "polygon");
+  mFinTop.setAttribute("points", "-11,-2.5 -11,-8 -5,-2.5");
+  mFinTop.setAttribute("fill", "#999");
+
+  const mFinBot = document.createElementNS(SVG_NS, "polygon");
+  mFinBot.setAttribute("points", "-11,2.5 -11,8 -5,2.5");
+  mFinBot.setAttribute("fill", "#999");
+
+  const mExhaust = document.createElementNS(SVG_NS, "ellipse");
+  mExhaust.setAttribute("cx", "-13"); mExhaust.setAttribute("cy", "0");
+  mExhaust.setAttribute("rx", "4"); mExhaust.setAttribute("ry", "2.5");
+  mExhaust.setAttribute("fill", "#ff6600");
+  mExhaust.setAttribute("opacity", "0.85");
+
+  missileG.appendChild(mFinTop);
+  missileG.appendChild(mFinBot);
+  missileG.appendChild(mBody);
+  missileG.appendChild(mExhaust);
+  layer.appendChild(missileG);
 
   // Intercept button
   const btn = document.createElement("button");
@@ -538,7 +561,7 @@ function launchMissile() {
   function cleanup() {
     path.remove();
     ring.remove();
-    dot.remove();
+    missileG.remove();
     btn.remove();
   }
 
@@ -631,12 +654,12 @@ function launchMissile() {
     requestAnimationFrame(frame);
   }
 
+  let missileX = sx, missileY = sy;
+
   btn.addEventListener("click", () => {
     if (intercepted) return;
     intercepted = true;
-    const cx = +dot.getAttribute("cx");
-    const cy = +dot.getAttribute("cy");
-    showExplosion(cx, cy);
+    showExplosion(missileX, missileY);
     state.money = Math.max(0, state.money - 1000);
     showFloat("-$1,000", false, "val-money");
     updateResourcesUI();
@@ -644,14 +667,23 @@ function launchMissile() {
     checkGameOver();
   });
 
+  function bezierTangent(t, p0, p1, p2) {
+    return 2*(1-t)*(p1-p0) + 2*t*(p2-p1);
+  }
+
   function animate(now) {
     if (intercepted) return;
     const t = Math.min((now - startTime) / DURATION, 1);
     const x = bezierPoint(t, sx, cpx, ex);
     const y = bezierPoint(t, sy, cpy, ey);
 
-    dot.setAttribute("cx", x);
-    dot.setAttribute("cy", y);
+    missileX = x; missileY = y;
+
+    const dx = bezierTangent(t, sx, cpx, ex);
+    const dy = bezierTangent(t, sy, cpy, ey);
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    missileG.setAttribute("transform", `translate(${x},${y}) rotate(${angle})`);
+
     btn.style.left = x + "px";
     btn.style.top  = y + "px";
 
