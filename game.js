@@ -593,8 +593,12 @@ function launchMissile() {
     let flashAlpha = 1.0;
     let shockR = 4;
 
+    const removeCanvas = () => { if (canvas.parentNode) canvas.remove(); };
+    setTimeout(removeCanvas, 2500); // hard fallback
+
     function frame() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.globalAlpha = 1;
 
       // Shockwave ring
       if (shockR < 80) {
@@ -602,6 +606,7 @@ function launchMissile() {
         ctx.arc(x, y, shockR, 0, Math.PI * 2);
         ctx.strokeStyle = `rgba(255,200,80,${Math.max(0, 0.7 - shockR / 80)})`;
         ctx.lineWidth = 3;
+        ctx.globalAlpha = 1;
         ctx.stroke();
         shockR += 5;
       }
@@ -614,6 +619,7 @@ function launchMissile() {
         ctx.beginPath();
         ctx.arc(x, y, 36, 0, Math.PI * 2);
         ctx.fillStyle = grad;
+        ctx.globalAlpha = 1;
         ctx.fill();
         flashAlpha -= 0.12;
       }
@@ -625,30 +631,30 @@ function launchMissile() {
         alive = true;
         p.x  += p.vx;
         p.y  += p.vy;
-        p.vy += 0.18;   // gravity
-        p.vx *= 0.96;   // drag
+        p.vy += 0.18;
+        p.vx *= 0.96;
         p.life -= p.decay;
+        if (p.life <= 0) return;
 
-        // streak tail
+        ctx.globalAlpha = Math.min(1, p.life * 0.6);
         ctx.beginPath();
         ctx.moveTo(p.x - p.vx * 2.5, p.y - p.vy * 2.5);
         ctx.lineTo(p.x, p.y);
         ctx.strokeStyle = p.color;
-        ctx.globalAlpha = p.life * 0.6;
         ctx.lineWidth = p.size * 0.6;
         ctx.stroke();
 
-        // dot
+        ctx.globalAlpha = Math.min(1, p.life);
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, Math.max(0, p.size * p.life), 0, Math.PI * 2);
         ctx.fillStyle = p.color;
-        ctx.globalAlpha = p.life;
         ctx.fill();
-        ctx.globalAlpha = 1;
       });
 
+      ctx.globalAlpha = 1;
+
       if (alive) requestAnimationFrame(frame);
-      else canvas.remove();
+      else removeCanvas();
     }
 
     requestAnimationFrame(frame);
