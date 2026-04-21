@@ -198,7 +198,7 @@ document.getElementById("briefing-start-btn").addEventListener("click", () => {
     <div id="game-actions">
       <button class="action-btn">📋 מודיעין</button>
       <button class="action-btn">⚔️ תקיפה</button>
-      <button class="action-btn">🛡️ הגנה</button>
+      <button class="action-btn">💹 כלכלה</button>
       <button class="action-btn">🤝 דיפלומטיה</button>
     </div>
   `;
