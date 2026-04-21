@@ -137,9 +137,9 @@ const state = {
   legitimacy:    60,
   turn:          1,
   gameDate:      new Date(2026, 3, 21),
-  arrowBattery:  false,
-  cooldowns:     {},
-  turnMissiles:  { fired: 0, intercepted: 0, hit: 0 },
+  arrowBattery:      false,
+  cooldowns:         {},
+  turnMissileStats:  { fired: 0, intercepted: 0, hit: 0 },
 };
 
 function formatDate(d) {
@@ -149,14 +149,44 @@ function formatDate(d) {
   return `${dd}.${mm}.${yyyy}`;
 }
 
+let currentDayEl = null;
+let currentMissileEl = null;
+
 function addLogDayHeader(turn, date) {
   const log = document.getElementById("log-content");
   if (!log) return;
   const el = document.createElement("div");
   el.className = "log-day-header";
   el.textContent = `יום ${turn} | ${formatDate(date)}`;
-  log.appendChild(el);
-  log.scrollTop = log.scrollHeight;
+  log.insertBefore(el, log.firstChild);
+  currentDayEl = el;
+  currentMissileEl = null;
+  log.scrollTop = 0;
+}
+
+function updateMissileRow() {
+  const log = document.getElementById("log-content");
+  if (!log) return;
+  const ms = state.turnMissileStats;
+  const missed = ms.fired - ms.intercepted - ms.hit;
+  const html =
+    `🚀 שוגרו: ${ms.fired}` +
+    ` | יורטו: <span class="log-eff-pos">${ms.intercepted}</span>` +
+    ` | פגעו: <span class="log-eff-neg">${ms.hit}</span>` +
+    (missed > 0 ? ` | פספסו: ${missed}` : "");
+  if (!currentMissileEl) {
+    currentMissileEl = document.createElement("div");
+    currentMissileEl.className = "log-entry log-missile";
+    if (currentDayEl && currentDayEl.nextSibling) {
+      log.insertBefore(currentMissileEl, currentDayEl.nextSibling);
+    } else if (currentDayEl) {
+      log.appendChild(currentMissileEl);
+    } else {
+      log.insertBefore(currentMissileEl, log.firstChild);
+    }
+  }
+  currentMissileEl.innerHTML = html;
+  log.scrollTop = 0;
 }
 
 function addLogEntry(html, type = "info") {
@@ -165,8 +195,15 @@ function addLogEntry(html, type = "info") {
   const el = document.createElement("div");
   el.className = `log-entry log-${type}`;
   el.innerHTML = html;
-  log.appendChild(el);
-  log.scrollTop = log.scrollHeight;
+  // Insert right after the current day header so entries stay under their day
+  if (currentDayEl && currentDayEl.nextSibling) {
+    log.insertBefore(el, currentDayEl.nextSibling);
+  } else if (currentDayEl) {
+    log.appendChild(el);
+  } else {
+    log.insertBefore(el, log.firstChild);
+  }
+  log.scrollTop = 0;
 }
 
 function effectsToLogHtml(effects) {
@@ -1009,7 +1046,8 @@ function launchWaveStrike(waves, jetsPerWave, minPerJet, maxPerJet, waveDelay = 
 }
 
 function launchMissile() {
-  state.turnMissiles.fired++;
+  state.turnMissileStats.fired++;
+  updateMissileRow();
   const iranRect  = document.getElementById("iran-map").getBoundingClientRect();
   const israelRect = document.getElementById("israel-map").getBoundingClientRect();
 
@@ -1200,7 +1238,8 @@ function launchMissile() {
       showExplosion(impactX, impactY);
       state.money = Math.max(0, state.money - 1000);
       showFloat("-$1,000", false, "val-money");
-      state.turnMissiles.intercepted++;
+      state.turnMissileStats.intercepted++;
+      updateMissileRow();
       updateResourcesUI();
       cleanup();
       checkGameOver();
@@ -1231,11 +1270,12 @@ function launchMissile() {
       showExplosion(ex, ey);
       cleanup();
       if (isLandHit(ex, ey)) {
-        state.turnMissiles.hit++;
+        state.turnMissileStats.hit++;
         const secDmg  = Math.floor(Math.random() * 11);   // 0–10
         const legGain = Math.floor(Math.random() * 6);    // 0–5
         state.security   = Math.max(0,   state.security   - secDmg);
         state.legitimacy = Math.min(100, state.legitimacy + legGain);
+        updateMissileRow();
         showEffectFloats([
           { key: "security",   delta: -secDmg,  lowerIsBetter: false },
           { key: "legitimacy", delta: +legGain, lowerIsBetter: false },
@@ -1375,15 +1415,10 @@ function startNextTurnCooldown() {
 nextTurnBtn.addEventListener("click", () => {
   if (state.turn >= 30) return;
 
-  // Log missile summary for the day that just ended
-  const ms = state.turnMissiles;
-  if (ms.fired > 0) {
-    const missed = ms.fired - ms.intercepted - ms.hit;
-    addLogEntry(`🚀 איראן שיגרה ${ms.fired} טילים — יורטו ${ms.intercepted}, פגעו ${ms.hit}${missed > 0 ? ", החטיאו " + missed : ""}`, "missile");
-  } else {
+  if (state.turnMissileStats.fired === 0) {
     addLogEntry("🕊️ יום שקט — ללא מתקפות", "quiet");
   }
-  state.turnMissiles = { fired: 0, intercepted: 0, hit: 0 };
+  state.turnMissileStats = { fired: 0, intercepted: 0, hit: 0 };
 
   state.turn += 1;
   state.gameDate = new Date(state.gameDate.getTime() + 86400000);

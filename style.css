@@ -122,10 +122,11 @@ h1 {
   border-right: 2px solid transparent;
 }
 
-.log-start   { border-right-color: #d4af37; color: #c0d0e0; }
-.log-action  { border-right-color: #4a8aff; }
-.log-missile { border-right-color: #ff5a3a; background: rgba(255,60,0,0.05); color: #ccaaaa; }
-.log-quiet   { border-right-color: #3a9a5a; color: #7abf8a; }
+.log-start     { border-right-color: #d4af37; color: #c0d0e0; }
+.log-action    { border-right-color: #4a8aff; }
+.log-missile   { border-right-color: #ff5a3a; background: rgba(255,60,0,0.05); color: #ccaaaa; }
+.log-intercept { border-right-color: #44cc88; color: #aae8cc; }
+.log-quiet     { border-right-color: #3a9a5a; color: #7abf8a; }
 
 .log-eff-pos { color: #4adf7a; font-weight: bold; }
 .log-eff-neg { color: #ff6a6a; font-weight: bold; }
