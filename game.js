@@ -1,14 +1,35 @@
 const WORLD_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
 
-const ISRAEL_ID = 376;
-const IRAN_ID = 364;
+const ISRAEL_ID     = 376;
+const PALESTINE_ID  = 275; // West Bank + Gaza — merged into Israel
+const IRAN_ID       = 364;
 
-const CAPITALS = {
-  [ISRAEL_ID]: { coords: [35.2163, 31.7683], name: "ירושלים" },
-  [IRAN_ID]:   { coords: [51.3890, 35.6892], name: "טהרן"    },
+// Golan Heights approximate polygon (Israeli-controlled area)
+const GOLAN_GEOJSON = {
+  type: "Feature",
+  geometry: {
+    type: "Polygon",
+    coordinates: [[
+      [35.63, 32.70],
+      [35.62, 33.00],
+      [35.68, 33.28],
+      [35.78, 33.42],
+      [35.92, 33.40],
+      [36.00, 33.20],
+      [35.98, 32.95],
+      [35.90, 32.72],
+      [35.75, 32.68],
+      [35.63, 32.70]
+    ]]
+  }
 };
 
-function drawMap(containerId, feature, capital) {
+const CAPITALS = {
+  israel: { coords: [35.2163, 31.7683], name: "ירושלים" },
+  iran:   { coords: [51.3890, 35.6892], name: "טהרן"    },
+};
+
+function drawMap(containerId, features, capital) {
   const container = document.getElementById(containerId);
   const w = container.clientWidth  || 400;
   const h = container.clientHeight || 400;
@@ -18,28 +39,29 @@ function drawMap(containerId, feature, capital) {
     .attr("viewBox", `0 0 ${w} ${h}`)
     .attr("preserveAspectRatio", "xMidYMid meet");
 
-  // Water background
   svg.append("rect")
     .attr("width", w).attr("height", h)
     .attr("fill", "#b0c8d8");
 
+  // Fit projection to bounding box of all features combined
+  const collection = { type: "FeatureCollection", features };
   const projection = d3.geoMercator()
-    .fitExtent([[24, 24], [w - 24, h - 24]], feature);
+    .fitExtent([[24, 24], [w - 24, h - 24]], collection);
 
   const path = d3.geoPath().projection(projection);
 
-  svg.append("path")
-    .datum(feature)
-    .attr("class", "country-shape")
-    .attr("d", path);
+  features.forEach(f => {
+    svg.append("path")
+      .datum(f)
+      .attr("class", "country-shape")
+      .attr("d", path);
+  });
 
   if (capital) {
     const [cx, cy] = projection(capital.coords);
-
     svg.append("circle")
       .attr("class", "capital-dot")
       .attr("cx", cx).attr("cy", cy).attr("r", 5);
-
     svg.append("text")
       .attr("class", "capital-label")
       .attr("x", cx + 8).attr("y", cy + 4)
@@ -50,13 +72,17 @@ function drawMap(containerId, feature, capital) {
 async function init() {
   try {
     const world = await d3.json(WORLD_URL);
-    const features = topojson.feature(world, world.objects.countries).features;
+    const allFeatures = topojson.feature(world, world.objects.countries).features;
 
-    const israel = features.find(d => +d.id === ISRAEL_ID);
-    const iran   = features.find(d => +d.id === IRAN_ID);
+    // Israel = Israel proper + West Bank/Gaza + Golan Heights
+    const israelBase  = allFeatures.find(d => +d.id === ISRAEL_ID);
+    const palestine   = allFeatures.find(d => +d.id === PALESTINE_ID);
+    const israelFeatures = [israelBase, palestine, GOLAN_GEOJSON].filter(Boolean);
 
-    if (israel) drawMap("israel-map", israel, CAPITALS[ISRAEL_ID]);
-    if (iran)   drawMap("iran-map",   iran,   CAPITALS[IRAN_ID]);
+    const iran = allFeatures.find(d => +d.id === IRAN_ID);
+
+    drawMap("israel-map", israelFeatures, CAPITALS.israel);
+    if (iran) drawMap("iran-map", [iran], CAPITALS.iran);
   } catch (e) {
     console.error("Failed to load map data:", e);
   }
