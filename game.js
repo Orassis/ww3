@@ -579,16 +579,18 @@ function launchMissile() {
     if (t >= 1) {
       showExplosion(ex, ey);
       cleanup();
-      const secDmg  = Math.floor(Math.random() * 11);   // 0–10
-      const legGain = Math.floor(Math.random() * 6);    // 0–5
-      state.security   = Math.max(0,   state.security   - secDmg);
-      state.legitimacy = Math.min(100, state.legitimacy + legGain);
-      showEffectFloats([
-        { key: "security",   delta: -secDmg,  lowerIsBetter: false },
-        { key: "legitimacy", delta: +legGain, lowerIsBetter: false },
-      ]);
-      updateResourcesUI();
-      checkGameOver();
+      if (isLandHit(ex, ey)) {
+        const secDmg  = Math.floor(Math.random() * 11);   // 0–10
+        const legGain = Math.floor(Math.random() * 6);    // 0–5
+        state.security   = Math.max(0,   state.security   - secDmg);
+        state.legitimacy = Math.min(100, state.legitimacy + legGain);
+        showEffectFloats([
+          { key: "security",   delta: -secDmg,  lowerIsBetter: false },
+          { key: "legitimacy", delta: +legGain, lowerIsBetter: false },
+        ]);
+        updateResourcesUI();
+        checkGameOver();
+      }
       return;
     }
     requestAnimationFrame(animate);
@@ -596,10 +598,21 @@ function launchMissile() {
   requestAnimationFrame(animate);
 }
 
+function isLandHit(ex, ey) {
+  const israelSvg = document.querySelector("#israel-map svg");
+  if (!israelSvg) return false;
+  const pt = israelSvg.createSVGPoint();
+  pt.x = ex;
+  pt.y = ey;
+  const svgPt = pt.matrixTransform(israelSvg.getScreenCTM().inverse());
+  return Array.from(israelSvg.querySelectorAll(".country-shape"))
+    .some(p => p.isPointInFill(svgPt));
+}
+
 function scheduleRandomAttack() {
   const delay = 3000 + Math.random() * 7000; // 3–10s
   setTimeout(() => {
-    const count = Math.floor(Math.random() * 11); // 0–10
+    const count = Math.floor(Math.random() * 6); // 0–5
     for (let i = 0; i < count; i++) launchMissile();
   }, delay);
 }
