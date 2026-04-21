@@ -131,7 +131,21 @@ const state = {
   security:    70,
   nuclear:     95,
   legitimacy:  60,
+  turn:        1,
+  gameDate:    new Date(2026, 3, 21), // April 21 2026
 };
+
+function formatDate(d) {
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${dd}.${mm}.${yyyy}`;
+}
+
+function updateTurnUI() {
+  document.getElementById("cal-date").textContent = formatDate(state.gameDate);
+  document.getElementById("cal-turn").textContent = `תור ${state.turn} | 30`;
+}
 
 function updateResourcesUI() {
   document.getElementById("val-money").textContent =
@@ -171,10 +185,12 @@ document.getElementById("briefing-start-btn").addEventListener("click", () => {
   document.querySelector("h1").textContent = greeting;
   document.getElementById("subtitle").textContent = "ראש הממשלה של ישראל";
 
-  // Show resources bar and nuclear meter
+  // Show resources bar, nuclear meter, and center column
   document.getElementById("resources-bar").classList.remove("hidden");
   document.getElementById("nuclear-meter").classList.remove("hidden");
+  document.getElementById("center-column").classList.remove("hidden");
   updateResourcesUI();
+  updateTurnUI();
 
   // Replace start button with action buttons
   const bar = document.getElementById("action-bar");
@@ -281,3 +297,11 @@ function showEvent(event) {
 
   overlay.classList.remove("hidden");
 }
+
+// ── Next Turn ──
+document.getElementById("next-turn-btn").addEventListener("click", () => {
+  if (state.turn >= 30) return;
+  state.turn += 1;
+  state.gameDate = new Date(state.gameDate.getTime() + 86400000);
+  updateTurnUI();
+});

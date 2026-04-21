@@ -681,6 +681,72 @@ h1 {
 .effect-pos { color: #7aee88; }
 .effect-neu { color: #aaaaaa; }
 
+/* ── Center column (calendar + next turn) ── */
+#center-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 110px;
+  flex-shrink: 0;
+}
+
+#center-column.hidden { display: none; }
+
+#date-widget {
+  background: #0a1625;
+  border: 1px solid #1e3a55;
+  border-radius: 8px;
+  padding: 12px 14px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+#cal-icon { font-size: 1.4rem; }
+
+#cal-date {
+  font-size: 0.85rem;
+  color: #d4af37;
+  font-weight: bold;
+  letter-spacing: 1px;
+  direction: ltr;
+}
+
+#cal-turn {
+  font-size: 0.78rem;
+  color: #5a7a9a;
+  letter-spacing: 1px;
+  direction: ltr;
+}
+
+#next-turn-btn {
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #1a3a5a, #2a5a8a);
+  color: #aad4ff;
+  border: 1px solid #3a7aaa;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  font-weight: bold;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 0 12px rgba(42, 90, 160, 0.3);
+  white-space: nowrap;
+  width: 100%;
+}
+
+#next-turn-btn:hover {
+  background: linear-gradient(135deg, #22507a, #3a7ab0);
+  box-shadow: 0 0 20px rgba(42, 90, 160, 0.5);
+  transform: translateY(-1px);
+}
+
 /* ── Game action buttons ── */
 #game-actions {
   display: flex;
